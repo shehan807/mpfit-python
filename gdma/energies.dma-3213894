@@ -1,0 +1,21 @@
+---------------------------------------
+Begin Slurm Prolog: Mar-13-2025 18:12:20
+Job ID:    3213894
+User ID:   sparmar32
+Account:   gts-jmcdaniel43-chemx
+Job name:  dma
+Partition: cpu-small
+QOS:       inferno
+---------------------------------------
+---------------------------------------
+Begin Slurm Epilog: Mar-13-2025 18:13:52
+Job ID:        3213894
+User ID:       sparmar32
+Account:       gts-jmcdaniel43-chemx
+Job name:      dma
+Resources:     cpu=8,mem=32G,node=1
+Rsrc Used:     cput=00:12:08,vmem=0,walltime=00:01:31,mem=556188K,energy_used=0
+Partition:     cpu-small
+QOS:           inferno
+Nodes:         atl1-1-02-005-19-1
+---------------------------------------

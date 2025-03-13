@@ -1,0 +1,3 @@
+2025-03-13:18:13:23,157 INFO     [psi4.driver.task_planner:285] PLANNING Atomic:  keywords={'function_kwargs': {}}
+2025-03-13:18:13:23,162 INFO     [psi4.driver.driver:523] Compute energy(): method=pbe0, basis=def2-svp, molecule=acnit, nre=58.784441156832926
+2025-03-13:18:13:50,617 INFO     [psi4.driver.driver:526] Return energy(): -132.49170518400283
