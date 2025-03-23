@@ -35,5 +35,9 @@ This allows for simplification of the original equation to,
 $$f(r) = \sum_a\sum_{l,m}I_{lm}^a(r)[Q_{lm}^a - \sum_{i}q_{i}^{a}R_{lm}^{a}(r_i)] = \sum_{a}f^{a}(r)$$
 
 
+<div style="border: 2px solid black; padding: 10px; background-color: #f9f9f9;">
 
+$$\mathbf{f(r) = \sum_a\sum_{l,m}I_{lm}^a(r)[Q_{lm}^a - \sum_{i}q_{i}^{a}R_{lm}^{a}(r_i)] = \sum_{a}f^{a}(r)}$$
+
+</div>
 
