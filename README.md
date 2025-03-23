@@ -41,3 +41,11 @@ $$\mathbf{f(r) = \sum_a\sum_{l,m}I_{lm}^a(r)[Q_{lm}^a - \sum_{i}q_{i}^{a}R_{lm}^
 
 </div>
 
+
+<table>
+<tr>
+<td align="center">
+$$\mathbf{f(r) = \sum_a\sum_{l,m}I_{lm}^a(r)[Q_{lm}^a - \sum_{i}q_{i}^{a}R_{lm}^{a}(r_i)] = \sum_{a}f^{a}(r)}$$
+</td>
+</tr>
+</table>
