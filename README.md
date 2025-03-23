@@ -17,7 +17,6 @@ $$ f_{ni} = \Sigma_{\lambda\mu} Q_{i\lambda\mu}I_{ni\lambda\mu} - \Sigma_{j}q_{j
 
 where $n$ refers to a point in space as the difference between the potential of a multipole series at the *i*th site and that of the point charge,$Q_{i\lambda\mu} is a multipole moment (of order $\lambda\mu$ in the *i*th position), $q_j$ is a point charge in the *j*th position, $I_{ni\lambda\mu}$ is an irregular solid harmonic, $I_{ni\lambda\mu} = r_{ni}^{-\lambda - 1}C_{ni\lambda\mu}$, where $C_{ni\lambda\mu} = [4\pi/2\lambda + 1]^{1/2}Y_{ni\lambda\mu}$, and $Y_{ni\lambda\mu}$ is a spherical harmonic. 
 
-% One begins by defining a function, f_{ni}
 \begin{align}
 f_{ni} = \sigma_{\lambda\mu} Q_{i\lambda\mu}I_{ni\lambda\mu} - \sigma_{j}q_{j}I_{nj00}
 \end{align}
