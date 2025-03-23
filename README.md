@@ -11,27 +11,13 @@ Potential derived charges are, of course, methods in which the charges are not o
 
 From a distributed multipole analysis (DMA), several multipole series at different locations are produced. Charges reproducing the potential of a particle multipole series is the essence of MPFIT. i.e., we seek charges whose multipole moments with respect to the position of the multipole series reproduces the charges obtained from the wave function. 
 
-One begins by defining a function, $f_{ni}$,
+One begins by defining a function, $f(r)$,
 
-$$ f_{ni} = \Sigma_{\lambda\mu} Q_{i\lambda\mu}I_{ni\lambda\mu} - \Sigma_{j}q_{j}I_{nj00}$$
+$$ f(r) = \sum_{a}\sum_{l,m} Q_{lm}^{a}I_{lm}^{a}(r) - \sum_{i}q_{i}I_{00}^{i}(r)$$
 
-where $n$ refers to a point in space as the difference between the potential of a multipole series at the *i*th site and that of the point charge,$Q_{i\lambda\mu} is a multipole moment (of order $\lambda\mu$ in the *i*th position), $q_j$ is a point charge in the *j*th position, $I_{ni\lambda\mu}$ is an irregular solid harmonic, $I_{ni\lambda\mu} = r_{ni}^{-\lambda - 1}C_{ni\lambda\mu}$, where $C_{ni\lambda\mu} = [4\pi/2\lambda + 1]^{1/2}Y_{ni\lambda\mu}$, and $Y_{ni\lambda\mu}$ is a spherical harmonic. 
+where $f(r)$ refers to a point in space as the difference between the potential of a multipole series at the *a*th site and that of the point charge, $Q_{lm}^{a} is a multipole moment (the *m*th component of the rank *l* multipole moment centered at $r_a$), $q_i$ is a point charge in the *i*th position, $I_{lm}^{a}$ is an irregular solid harmonic, $I_{lm}^{a}(r) = r_{a}^{-(l+1)}C_{lm}^{a}(\theta,\phi)$, where $C_{lm}^{a}(\theta,\phi) = [4\pi/(2l + 1)]^{1/2}Y_{lm}^{a}(\theta,\phi)$, and $Y_{lm}^{a}(\theta,\phi)$ is a spherical harmonic. 
 
-\begin{align}
-f_{ni} = \sigma_{\lambda\mu} Q_{i\lambda\mu}I_{ni\lambda\mu} - \sigma_{j}q_{j}I_{nj00}
-\end{align}
 
-\begin{annotate}
-\annot{f_{ni}}{The function representing the difference between multipole potential and point charge potential}
-\annot{n}{A point in space}
-\annot{i}{Index for the site position}
-\annot{\sigma_{\lambda\mu}}{Summation over indices $\lambda$ and $\mu$}
-\annot{Q_{i\lambda\mu}}{Multipole moment of order $\lambda\mu$ at the $i$th position}
-\annot{q_j}{Point charge at the $j$th position}
-\annot{I_{ni\lambda\mu}}{Irregular solid harmonic}
-\annot{I_{ni\lambda\mu} = r_{ni}^{-\lambda - 1}C_{ni\lambda\mu}}{Definition of irregular solid harmonic}
-\annot{C_{ni\lambda\mu} = [4\pi/2\lambda + 1]^{1/2}Y_{ni\lambda\mu}}{Definition of $C_{ni\lambda\mu}$}
-\annot{Y_{ni\lambda\mu}}{Spherical harmonic}
-\end{annotate}
+Its helpful to see this equation as simply the different in the potential created by the distributed multipole moments, $V^{DMM}(r)$, and the potential created by the point charges, $V^{Q}(r)$, 
 
-## Methodology 
+$$ f(r) = V^{DMM}(r) - V^{Q}(r)$$.
