@@ -1,6 +1,8 @@
 The MPFIT (multipole fitting) python code obtains the partial atomic charge based on the distributed multipole analysis by Stone et al. 
 
-![PyMPFit Logo](PyMPFit_logo.svg)
+<p align="center">
+  <img src="PyMPFit_logo.svg" width="50%" alt="PyMPFit Logo">
+</p>
 
 
 ## Summary 
