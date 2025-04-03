@@ -66,4 +66,48 @@ where
 
 $$K_{lm,l'm'}^{ab} (\rho_1,\rho_2) = \int_{\rho_1}^{\rho_2}\int_{\theta_1}^{\theta_2}\int_{\phi_1}^{\phi_2} I_{lm}^a(r) I_{l'm'}^b(r) r^2 sin\theta dr d\theta d\phi$$
 
+Computing the off-diagonal components of this approach would be cumbersome ($a\neq b$), especially in the case of having some grid construction involved in molecular electrostatic potential- or field-derived methods. To this end, recall that the optimization can be broken up into the sum of $f(r)$ at each spherical layer around point $a$:
 
+$$F^a(\rho_1,\rho_2) = \sum_{l,m} \frac{4\pi}{2l + 1} W_{\rho_1,\rho_2,l} \left[Q_{lm}^a - \sum_iq_i^aR_{lm}^a(r_i)\right]^2$$
+
+where the $W_{\rho_1,\rho_2,l}$ factors
+
+$$W_{\rho_1,\rho_2,l} = \int_{\rho_1}^{\rho_2} r^2r^{-2(l+1)} dr = \frac{1}{1-2l}\left(\rho_2^{1-2l} - \rho_1^{1-2l}\right)$$
+
+weight the importanc eof the multipoles of rank $l$. Now, we just need to solve for 
+
+<table align="center">
+<tr>
+<td>
+
+$$\frac{\delta F^a}{\delta q_j^a} = 2 \sum_{l,m} \frac{4\pi}{2l+1} W_{\rho_1,\rho_2,l} \left[ Q_{lm}^a - \sum_i q_iR_{lm}^a(r_i)\right]R_{lm}^a(r_j) = 0$$
+
+</td>
+</tr>
+</table>
+
+where the new $Aq^a = b$ matrix equation is solved by creating the following $A$ and $b$ matrices:
+
+<table align="center">
+<tr>
+<td>
+
+$$A_ij^a = \sum_{lm}\frac{1}{2l+1}R_{lm}^a(r_i) R_{l'm'}^b(r_j) W_{\rho_1,\rho_2,l}$$
+
+</td>
+</tr>
+</table>
+
+<table align="center">
+<tr>
+<td>
+
+$$b_j^a = \sum_{lm}\frac{1}{2l+1}R_{lm}^a(r_i) Q_{lm}^a W_{\rho_1,\rho_2,l} $$
+
+</td>
+</tr>
+</table>
+
+where the partial charges are deterimed via 
+
+$$q^a = A^{-1}b$$
