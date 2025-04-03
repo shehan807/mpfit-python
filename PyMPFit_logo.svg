@@ -5,105 +5,123 @@
     viewBox="0 0 300 300"
     xmlns="http://www.w3.org/2000/svg">
   
-  <!-- Enhanced gradients and filters -->
+  <!-- Refined gradients and filters with improved color scheme -->
   <defs>
-    <!-- High contrast core gradient -->
-    <radialGradient id="coreGradient" cx="45%" cy="45%" r="70%">
-      <stop offset="0%" stop-color="#FFD43B" />
-      <stop offset="75%" stop-color="#306998" />
-      <stop offset="100%" stop-color="#1A4971" />
+    <!-- Improved core gradient with better color balance -->
+    <radialGradient id="coreGradient" cx="40%" cy="40%" r="70%">
+      <stop offset="0%" stop-color="#FEDE58" /> <!-- Softer yellow -->
+      <stop offset="70%" stop-color="#3776AB" /> <!-- Standard Python blue -->
+      <stop offset="100%" stop-color="#1E415E" /> <!-- Deeper blue for dimension -->
     </radialGradient>
     
-    <!-- Strong text effect with deeper contrast -->
-    <filter id="textEffect" x="-20%" y="-20%" width="140%" height="140%">
-      <feDropShadow dx="0" dy="2" stdDeviation="1" flood-color="#ffffff" flood-opacity="0.6"/>
-    </filter>
-    
-    <!-- High contrast highlight -->
-    <linearGradient id="highlightGradient" x1="30%" y1="20%" x2="70%" y2="80%">
+    <!-- More subtle highlight effect -->
+    <linearGradient id="glossHighlight" x1="25%" y1="20%" x2="75%" y2="75%">
       <stop offset="0%" stop-color="rgba(255,255,255,0.4)" />
-      <stop offset="100%" stop-color="rgba(0,0,0,0)" />
+      <stop offset="60%" stop-color="rgba(255,255,255,0.05)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
     </linearGradient>
     
-    <!-- Subtle dipole radiation pattern gradient -->
+    <!-- Refined text effect with balanced shadow -->
+    <filter id="enhancedTextEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.4"/>
+    </filter>
+    
+    <!-- Subtle glow effect -->
+    <filter id="subtleGlow" x="-15%" y="-15%" width="130%" height="130%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+    
+    <!-- Refined radiation pattern gradient -->
     <radialGradient id="radiationGradient" cx="50%" cy="50%" r="65%">
       <stop offset="10%" stop-color="rgba(255,255,255,0)" />
       <stop offset="80%" stop-color="rgba(255,255,255,0.1)" />
-      <stop offset="95%" stop-color="rgba(255,255,255,0.2)" />
+      <stop offset="95%" stop-color="rgba(255,255,255,0.15)" />
       <stop offset="100%" stop-color="rgba(255,255,255,0)" />
     </radialGradient>
   </defs>
   
-  <!-- Main eccentric elliptical shape with higher contrast -->
+  <!-- Subtle glow backdrop -->
+  <ellipse
+    cx="150"
+    cy="150"
+    rx="125"
+    ry="105"
+    fill="#3776AB"
+    opacity="0.15"
+    filter="url(#subtleGlow)"
+  />
+  
+  <!-- Main elliptical shape with refined gradient -->
   <ellipse
     cx="150"
     cy="150"
     rx="115"
     ry="95"
     fill="url(#coreGradient)"
-    stroke="#1A4971"
+    stroke="#1E415E"
     stroke-width="3"
   />
   
-  <!-- Stronger highlight for contrast -->
+  <!-- More subtle highlight -->
   <ellipse
-    cx="140"
-    cy="135"
-    rx="105"
-    ry="85"
-    fill="url(#highlightGradient)"
+    cx="120"
+    cy="120"
+    rx="85"
+    ry="65"
+    fill="url(#glossHighlight)"
     stroke="none"
   />
   
-  <!-- Subtle dipole radiation pattern -->
+  <!-- Refined dipole radiation pattern -->
   <path
     d="M 150,150 m -90,0 a 90,40 0 1,0 180,0 a 90,40 0 1,0 -180,0"
     fill="url(#radiationGradient)"
     stroke="rgba(255,255,255,0.15)"
-    stroke-width="0.5"
+    stroke-width="0.7"
     transform="rotate(90 150 150)"
   />
   
-  <!-- Subtle quadrupole-like pattern (inspired by image h) -->
+  <!-- Refined quadrupole pattern -->
   <path
     d="M 150,150 m -65,0 a 65,40 0 1,0 130,0 a 65,40 0 1,0 -130,0"
     fill="none"
-    stroke="rgba(255,255,255,0.1)"
-    stroke-width="0.5"
+    stroke="rgba(255,255,255,0.12)"
+    stroke-width="0.7"
     transform="rotate(45 150 150)"
   />
   <path
     d="M 150,150 m -65,0 a 65,40 0 1,0 130,0 a 65,40 0 1,0 -130,0"
     fill="none"
-    stroke="rgba(255,255,255,0.1)"
-    stroke-width="0.5"
+    stroke="rgba(255,255,255,0.12)"
+    stroke-width="0.7"
     transform="rotate(135 150 150)"
   />
   
-  <!-- Very subtle octupole-like pattern (inspired by image l) -->
+  <!-- Refined octupole pattern -->
   <path
     d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
     fill="none"
-    stroke="rgba(255,255,255,0.07)"
-    stroke-width="0.5"
+    stroke="rgba(255,255,255,0.1)"
+    stroke-width="0.7"
     transform="rotate(0 150 150)"
   />
   <path
     d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
     fill="none"
-    stroke="rgba(255,255,255,0.07)"
-    stroke-width="0.5"
+    stroke="rgba(255,255,255,0.1)"
+    stroke-width="0.7"
     transform="rotate(60 150 150)"
   />
   <path
     d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
     fill="none"
-    stroke="rgba(255,255,255,0.07)"
-    stroke-width="0.5"
+    stroke="rgba(255,255,255,0.1)"
+    stroke-width="0.7"
     transform="rotate(120 150 150)"
   />
   
-  <!-- Subtle magnetic dipole current loop (inspired by image b) -->
+  <!-- Refined magnetic dipole current loop -->
   <ellipse
     cx="150" 
     cy="150"
@@ -111,21 +129,21 @@
     ry="104"
     fill="none"
     stroke="#ffffff"
-    stroke-width="1"
-    stroke-opacity="0.3"
+    stroke-width="1.2"
+    stroke-opacity="0.4"
   />
   
-  <!-- Darker text for "PyMPFit" with no spacing -->
+  <!-- Refined text with appropriate shadow -->
   <text
     x="150"
     y="150"
-    font-family="'Trebuchet MS', Helvetica, sans-serif"
-    font-size="45"
-    fill="#121212"
+    font-family="'Arial Black', Gadget, sans-serif"
+    font-size="48"
+    fill="#1A1A1A"
     text-anchor="middle"
     alignment-baseline="middle"
     font-weight="bold"
-    filter="url(#textEffect)">
+    filter="url(#enhancedTextEffect)">
     PyMPFit
   </text>
 </svg>
