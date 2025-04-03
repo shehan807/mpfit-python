@@ -32,7 +32,7 @@ $$R_{lm}(r) = r^{2l+1}I_{lm}(r)$$
 
 This allows for simplification of the original equation to, 
 
-<div style="border: 1px solid #ccc; border-radius: 4px; padding: 16px; background-color: #f9f9f9;">
+<div style="border: 2px solid black; padding: 10px;">
 
 $$f(r) = \sum_a\sum_{l,m}I_{lm}^a(r)[Q_{lm}^a - \sum_{i}q_{i}^{a}R_{lm}^{a}(r_i)] = \sum_{a}f^{a}(r)$$
 
