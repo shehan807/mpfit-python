@@ -1,5 +1,8 @@
 The MPFIT (multipole fitting) python code obtains the partial atomic charge based on the distributed multipole analysis by Stone et al. 
 
+![PyMPFit Logo](PyMPFit_logo.svg)
+
+
 ## Summary 
 
 THE MPFIT code implements Ferenczy's original partial charge fitting procedure to calculate electrostatic charges to reproduce the electrostatic potential of a distributed multipole series. This contrasts with the traditional/popular methods of potential derived charges, i.e., reproducing the molecular electrostatic potential at some atomic sites. In these latter methods, site selection, molecular orientation dependence, or charge assignment of symmetrically related centers seemingly trouble such calculations.
