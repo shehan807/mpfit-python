@@ -1,211 +1,131 @@
 <svg
     version="1.1"
     baseProfile="full"
-    width="250" height="250"
-    viewBox="0 0 250 250"
+    width="300" height="300"
+    viewBox="0 0 300 300"
     xmlns="http://www.w3.org/2000/svg">
   
-  <!-- Enhanced gradients and filters for 3D depth and multipole representation -->
+  <!-- Enhanced gradients and filters -->
   <defs>
-    <!-- Main electrostatic potential gradient with more depth -->
-    <radialGradient id="electrostaticGradient" cx="40%" cy="40%" r="80%">
+    <!-- High contrast core gradient -->
+    <radialGradient id="coreGradient" cx="45%" cy="45%" r="70%">
       <stop offset="0%" stop-color="#FFD43B" />
-      <stop offset="40%" stop-color="#3775A9" />
-      <stop offset="70%" stop-color="#1A4971" />
-      <stop offset="100%" stop-color="#0A2540" />
+      <stop offset="75%" stop-color="#306998" />
+      <stop offset="100%" stop-color="#1A4971" />
     </radialGradient>
     
-    <!-- Strong 3D text effect -->
-    <filter id="text3D" x="-30%" y="-30%" width="160%" height="160%">
-      <feDropShadow dx="0" dy="3" stdDeviation="2" flood-color="#000" flood-opacity="0.7"/>
-      <feDropShadow dx="1" dy="1" stdDeviation="1" flood-color="#000" flood-opacity="0.5"/>
-      <feDropShadow dx="-1" dy="-1" stdDeviation="0.5" flood-color="#fff" flood-opacity="0.3"/>
+    <!-- Strong text effect with deeper contrast -->
+    <filter id="textEffect" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1" flood-color="#ffffff" flood-opacity="0.6"/>
     </filter>
     
-    <!-- Glowing orbital effect -->
-    <filter id="orbitalGlow" x="-30%" y="-30%" width="160%" height="160%">
-      <feGaussianBlur stdDeviation="3" result="blur"/>
-      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-    </filter>
-    
-    <!-- 3D sphere lighting effect -->
-    <linearGradient id="sphereHighlight" x1="15%" y1="15%" x2="85%" y2="85%">
-      <stop offset="0%" stop-color="rgba(255,255,255,0.5)" />
-      <stop offset="50%" stop-color="rgba(255,255,255,0)" />
-      <stop offset="100%" stop-color="rgba(0,0,0,0.3)" />
+    <!-- High contrast highlight -->
+    <linearGradient id="highlightGradient" x1="30%" y1="20%" x2="70%" y2="80%">
+      <stop offset="0%" stop-color="rgba(255,255,255,0.4)" />
+      <stop offset="100%" stop-color="rgba(0,0,0,0)" />
     </linearGradient>
     
-    <!-- Multipole distribution gradient -->
-    <linearGradient id="multipoleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF6B6B" />
-      <stop offset="25%" stop-color="#FFBA6B" />
-      <stop offset="50%" stop-color="#3775A9" />
-      <stop offset="75%" stop-color="#66D2D5" />
-      <stop offset="100%" stop-color="#4ECDC4" />
-    </linearGradient>
+    <!-- Subtle dipole radiation pattern gradient -->
+    <radialGradient id="radiationGradient" cx="50%" cy="50%" r="65%">
+      <stop offset="10%" stop-color="rgba(255,255,255,0)" />
+      <stop offset="80%" stop-color="rgba(255,255,255,0.1)" />
+      <stop offset="95%" stop-color="rgba(255,255,255,0.2)" />
+      <stop offset="100%" stop-color="rgba(255,255,255,0)" />
+    </radialGradient>
   </defs>
   
-  <!-- Background 3D sphere with depth -->
-  <circle
-    cx="125"
-    cy="125"
-    r="90"
-    fill="url(#electrostaticGradient)"
-    stroke="url(#multipoleGradient)"
-    stroke-width="6"
+  <!-- Main eccentric elliptical shape with higher contrast -->
+  <ellipse
+    cx="150"
+    cy="150"
+    rx="115"
+    ry="95"
+    fill="url(#coreGradient)"
+    stroke="#1A4971"
+    stroke-width="3"
   />
   
-  <!-- 3D highlight overlay -->
-  <circle
-    cx="125"
-    cy="125"
-    r="85"
-    fill="url(#sphereHighlight)"
+  <!-- Stronger highlight for contrast -->
+  <ellipse
+    cx="140"
+    cy="135"
+    rx="105"
+    ry="85"
+    fill="url(#highlightGradient)"
     stroke="none"
   />
   
-  <!-- Shadow for 3D effect -->
-  <ellipse
-    cx="125" 
-    cy="140"
-    rx="85" 
-    ry="10"
-    fill="rgba(0,0,0,0.3)"
-    stroke="none"
-  />
-  
-  <!-- Multiple orbital paths suggesting multipoles at different orders -->
-  <!-- First order multipole (dipole) -->
-  <ellipse
-    cx="125" 
-    cy="125"
-    rx="80" 
-    ry="40"
-    fill="none"
-    stroke="#ffffff"
-    stroke-width="2.5"
-    stroke-opacity="0.8"
-    transform="rotate(45 125 125)"
-  />
-  
-  <!-- Second order multipole (quadrupole) -->
-  <ellipse
-    cx="125" 
-    cy="125"
-    rx="75" 
-    ry="50"
-    fill="none"
-    stroke="#ffffff"
-    stroke-width="2"
-    stroke-opacity="0.6"
-    transform="rotate(-30 125 125)"
-  />
-  
-  <!-- Third order multipole (octupole) -->
-  <ellipse
-    cx="125" 
-    cy="125"
-    rx="65" 
-    ry="60"
-    fill="none"
-    stroke="#ffffff"
-    stroke-width="1.5"
-    stroke-opacity="0.4"
-    transform="rotate(15 125 125)"
-  />
-  
-  <!-- Multipole charge distribution representation -->
-  <!-- Positive charges (red) -->
-  <circle cx="205" cy="125" r="8" fill="#FF6B6B" stroke="#ffffff" stroke-width="1.5">
-    <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />
-  </circle>
-  <circle cx="125" cy="45" r="6" fill="#FF9F6B" stroke="#ffffff" stroke-width="1.5">
-    <animate attributeName="opacity" values="0.8;1;0.8" dur="4s" repeatCount="indefinite" />
-  </circle>
-  <circle cx="160" cy="80" r="5" fill="#FFBA6B" stroke="#ffffff" stroke-width="1">
-    <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3.5s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Negative charges (blue) -->
-  <circle cx="45" cy="125" r="8" fill="#4ECDC4" stroke="#ffffff" stroke-width="1.5">
-    <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />
-  </circle>
-  <circle cx="125" cy="205" r="6" fill="#66D2D5" stroke="#ffffff" stroke-width="1.5">
-    <animate attributeName="opacity" values="0.8;1;0.8" dur="4s" repeatCount="indefinite" />
-  </circle>
-  <circle cx="90" cy="170" r="5" fill="#76E5C8" stroke="#ffffff" stroke-width="1">
-    <animate attributeName="opacity" values="0.6;0.9;0.6" dur="3.5s" repeatCount="indefinite" />
-  </circle>
-  
-  <!-- Connecting field lines between charges -->
+  <!-- Subtle dipole radiation pattern -->
   <path
-    d="M 205 125 C 170 90, 80 160, 45 125"
-    fill="none"
-    stroke="url(#multipoleGradient)"
-    stroke-width="2"
-    stroke-opacity="0.5"
-    stroke-dasharray="4,2"
+    d="M 150,150 m -90,0 a 90,40 0 1,0 180,0 a 90,40 0 1,0 -180,0"
+    fill="url(#radiationGradient)"
+    stroke="rgba(255,255,255,0.15)"
+    stroke-width="0.5"
+    transform="rotate(90 150 150)"
   />
   
+  <!-- Subtle quadrupole-like pattern (inspired by image h) -->
   <path
-    d="M 125 45 C 160 90, 90 170, 125 205"
+    d="M 150,150 m -65,0 a 65,40 0 1,0 130,0 a 65,40 0 1,0 -130,0"
     fill="none"
-    stroke="url(#multipoleGradient)"
-    stroke-width="2"
-    stroke-opacity="0.5"
-    stroke-dasharray="4,2"
+    stroke="rgba(255,255,255,0.1)"
+    stroke-width="0.5"
+    transform="rotate(45 150 150)"
+  />
+  <path
+    d="M 150,150 m -65,0 a 65,40 0 1,0 130,0 a 65,40 0 1,0 -130,0"
+    fill="none"
+    stroke="rgba(255,255,255,0.1)"
+    stroke-width="0.5"
+    transform="rotate(135 150 150)"
   />
   
-  <!-- Arc suggesting orbital motion with glow -->
+  <!-- Very subtle octupole-like pattern (inspired by image l) -->
   <path
-    d="M 125 35 
-       A 90 90 0 0 1 215 125"
+    d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
+    fill="none"
+    stroke="rgba(255,255,255,0.07)"
+    stroke-width="0.5"
+    transform="rotate(0 150 150)"
+  />
+  <path
+    d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
+    fill="none"
+    stroke="rgba(255,255,255,0.07)"
+    stroke-width="0.5"
+    transform="rotate(60 150 150)"
+  />
+  <path
+    d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
+    fill="none"
+    stroke="rgba(255,255,255,0.07)"
+    stroke-width="0.5"
+    transform="rotate(120 150 150)"
+  />
+  
+  <!-- Subtle magnetic dipole current loop (inspired by image b) -->
+  <ellipse
+    cx="150" 
+    cy="150"
+    rx="124" 
+    ry="104"
     fill="none"
     stroke="#ffffff"
-    stroke-width="3.5"
-    stroke-linecap="round"
-    filter="url(#orbitalGlow)"
+    stroke-width="1"
+    stroke-opacity="0.3"
   />
   
-  <!-- Arc suggesting orbital motion (opposite) with glow -->
-  <path
-    d="M 125 215 
-       A 90 90 0 0 0 35 125"
-    fill="none"
-    stroke="#ffffff"
-    stroke-width="3.5"
-    stroke-linecap="round"
-    filter="url(#orbitalGlow)"
-  />
-  
-  <!-- Enhanced Text for "PyMPFit" with stronger 3D effect and darker color -->
+  <!-- Darker text for "PyMPFit" with no spacing -->
   <text
-    x="125"
-    y="130"
-    font-family="'Arial Black', Gadget, sans-serif"
-    font-size="32"
+    x="150"
+    y="150"
+    font-family="'Trebuchet MS', Helvetica, sans-serif"
+    font-size="45"
     fill="#121212"
     text-anchor="middle"
     alignment-baseline="middle"
     font-weight="bold"
-    filter="url(#text3D)">
+    filter="url(#textEffect)">
     PyMPFit
   </text>
-  
-  <!-- Subtle electron particles moving along orbits -->
-  <circle cx="0" cy="0" r="3" fill="#ffffff">
-    <animateMotion
-      path="M 125 35 A 90 90 0 0 1 215 125"
-      dur="4s"
-      repeatCount="indefinite"
-    />
-  </circle>
-  
-  <circle cx="0" cy="0" r="3" fill="#ffffff">
-    <animateMotion
-      path="M 125 215 A 90 90 0 0 0 35 125"
-      dur="5s"
-      repeatCount="indefinite"
-    />
-  </circle>
 </svg>
