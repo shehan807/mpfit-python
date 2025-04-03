@@ -32,7 +32,7 @@ $$R_{lm}(r) = r^{2l+1}I_{lm}(r)$$
 
 This allows for simplification of the original equation to, 
 
-<table>
+<table align="center">
 <tr>
 <td>
 
