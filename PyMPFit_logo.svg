@@ -1,8 +1,8 @@
 <svg
     version="1.1"
     baseProfile="full"
-    width="300" height="300"
-    viewBox="0 0 300 300"
+    width="400" height="250"
+    viewBox="0 0 400 250"
     xmlns="http://www.w3.org/2000/svg">
   
   <!-- Refined gradients and filters with improved color scheme -->
@@ -41,92 +41,92 @@
     </radialGradient>
   </defs>
   
-  <!-- Subtle glow backdrop -->
+  <!-- Subtle glow backdrop - elongated -->
   <ellipse
-    cx="150"
-    cy="150"
-    rx="125"
-    ry="105"
+    cx="200"
+    cy="125"
+    rx="165"
+    ry="90"
     fill="#3776AB"
     opacity="0.15"
     filter="url(#subtleGlow)"
   />
   
-  <!-- Main elliptical shape with refined gradient -->
+  <!-- Main elliptical shape with refined gradient - elongated -->
   <ellipse
-    cx="150"
-    cy="150"
-    rx="115"
-    ry="95"
+    cx="200"
+    cy="125"
+    rx="155"
+    ry="80"
     fill="url(#coreGradient)"
     stroke="#1E415E"
     stroke-width="3"
   />
   
-  <!-- More subtle highlight -->
+  <!-- More subtle highlight - elongated -->
   <ellipse
-    cx="120"
-    cy="120"
-    rx="85"
-    ry="65"
+    cx="170"
+    cy="110"
+    rx="120"
+    ry="60"
     fill="url(#glossHighlight)"
     stroke="none"
   />
   
-  <!-- Refined dipole radiation pattern -->
+  <!-- Refined dipole radiation pattern - elongated -->
   <path
-    d="M 150,150 m -90,0 a 90,40 0 1,0 180,0 a 90,40 0 1,0 -180,0"
+    d="M 200,125 m -120,0 a 120,40 0 1,0 240,0 a 120,40 0 1,0 -240,0"
     fill="url(#radiationGradient)"
     stroke="rgba(255,255,255,0.15)"
     stroke-width="0.7"
-    transform="rotate(90 150 150)"
+    transform="rotate(90 200 125)"
   />
   
-  <!-- Refined quadrupole pattern -->
+  <!-- Refined quadrupole pattern - elongated -->
   <path
-    d="M 150,150 m -65,0 a 65,40 0 1,0 130,0 a 65,40 0 1,0 -130,0"
+    d="M 200,125 m -95,0 a 95,40 0 1,0 190,0 a 95,40 0 1,0 -190,0"
     fill="none"
     stroke="rgba(255,255,255,0.12)"
     stroke-width="0.7"
-    transform="rotate(45 150 150)"
+    transform="rotate(45 200 125)"
   />
   <path
-    d="M 150,150 m -65,0 a 65,40 0 1,0 130,0 a 65,40 0 1,0 -130,0"
+    d="M 200,125 m -95,0 a 95,40 0 1,0 190,0 a 95,40 0 1,0 -190,0"
     fill="none"
     stroke="rgba(255,255,255,0.12)"
     stroke-width="0.7"
-    transform="rotate(135 150 150)"
+    transform="rotate(135 200 125)"
   />
   
-  <!-- Refined octupole pattern -->
+  <!-- Refined octupole pattern - elongated -->
   <path
-    d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
+    d="M 200,125 m -85,0 a 85,35 0 1,0 170,0 a 85,35 0 1,0 -170,0"
     fill="none"
     stroke="rgba(255,255,255,0.1)"
     stroke-width="0.7"
-    transform="rotate(0 150 150)"
+    transform="rotate(0 200 125)"
   />
   <path
-    d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
+    d="M 200,125 m -85,0 a 85,35 0 1,0 170,0 a 85,35 0 1,0 -170,0"
     fill="none"
     stroke="rgba(255,255,255,0.1)"
     stroke-width="0.7"
-    transform="rotate(60 150 150)"
+    transform="rotate(60 200 125)"
   />
   <path
-    d="M 150,150 m -55,0 a 55,35 0 1,0 110,0 a 55,35 0 1,0 -110,0"
+    d="M 200,125 m -85,0 a 85,35 0 1,0 170,0 a 85,35 0 1,0 -170,0"
     fill="none"
     stroke="rgba(255,255,255,0.1)"
     stroke-width="0.7"
-    transform="rotate(120 150 150)"
+    transform="rotate(120 200 125)"
   />
   
-  <!-- Refined magnetic dipole current loop -->
+  <!-- Refined magnetic dipole current loop - elongated -->
   <ellipse
-    cx="150" 
-    cy="150"
-    rx="124" 
-    ry="104"
+    cx="200" 
+    cy="125"
+    rx="164" 
+    ry="89"
     fill="none"
     stroke="#ffffff"
     stroke-width="1.2"
@@ -135,8 +135,8 @@
   
   <!-- Refined text with appropriate shadow -->
   <text
-    x="150"
-    y="150"
+    x="200"
+    y="125"
     font-family="'Arial Black', Gadget, sans-serif"
     font-size="48"
     fill="#1A1A1A"
