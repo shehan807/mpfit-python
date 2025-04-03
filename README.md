@@ -111,3 +111,16 @@ $$b_j^a = \sum_{lm}\frac{1}{2l+1}R_{lm}^a(r_i) Q_{lm}^a W_{\rho_1,\rho_2,l} $$
 where the partial charges are deterimed via 
 
 $$q^a = A^{-1}b$$
+
+where 
+
+<table align="center">
+<tr>
+<td>
+
+$$q_i = \sum_a q_i^a = \sum_a A_a^{-1}b^a$$
+
+</td>
+</tr>
+</table>
+ 
