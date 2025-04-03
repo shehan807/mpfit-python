@@ -32,11 +32,15 @@ $$R_{lm}(r) = r^{2l+1}I_{lm}(r)$$
 
 This allows for simplification of the original equation to, 
 
-<div style="border: 2px solid black; padding: 10px;">
+<table>
+<tr>
+<td>
 
 $$f(r) = \sum_a\sum_{l,m}I_{lm}^a(r)[Q_{lm}^a - \sum_{i}q_{i}^{a}R_{lm}^{a}(r_i)] = \sum_{a}f^{a}(r)$$
 
-</div>
+</td>
+</tr>
+</table>
 
 We can eliminate $I_{lm}^{a}(r)$ by integration. Namely, the integration of $[f(r)]^2$ yields the optimium set of net charges based on an appropriate integral bound in polar coordinates. This is, in essence, the starting point for the optimization problem:
 
