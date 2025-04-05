@@ -158,6 +158,40 @@ def Amat(nsite, xyzmult, xyzcharge, r1, r2, maxl, A):
             A[j, k] = _sum
     return A
 
+
+def bvec(nsite, xyzmult, xyzcharge, r1, r2, maxl, multipoles, b):
+    """Construct b vector as in  J. Comp. Chem. Vol. 12, No. 8, 913-917 (1991)"""
+    ncharge = xyzcharge.shape[0]
+
+    W = np.zeros(maxl+1, dtype=np.float64)
+    for i in range(maxl+1):
+        W[i] = (1.0 / (1.0 - 2.0 * i)) * (r2**(1 - 2 * i) - r1**(1 - 2 * i))
+    for k in range(ncharge):
+        # Compute relative coordinates
+        xk = xyzcharge[k, 0] - xyzmult[nsite, 0]
+        yk = xyzcharge[k, 1] - xyzmult[nsite, 1]
+        zk = xyzcharge[k, 2] - xyzmult[nsite, 2]
+
+        _sum = 0.0
+        for l in range(maxl+1):
+            if l == 0:
+                # Special case for l = 0
+                _sum = (1.0 / (2.0 * l + 1.0)) * W[0] * \
+                        multipoles[nsite, 0, 0, 0] * RSH(0, 0, 0, xk, yk, zk)
+            else:
+                for m in range(l+1):
+                    if m == 0: 
+                        # m = 0 case
+                        _sum += (1.0 / (2.0 * l + 1.0)) * W[l] * \
+                                multipoles[nsite, l, 0, 0] * RSH(l, 0, 0, xk, yk, zk)
+                    else:
+                        # m > 0 case
+                        _sum += (1.0 / (2.0 * l + 1.0)) * W[l] * \
+                                   (multipoles[nsite, l, m, 0] * RSH(l, m, 0, xk, yk, zk) +
+                                    multipoles[nsite, l, m, 1] * RSH(l, m, 1, xk, yk, zk))
+        b[k] = _sum
+    return b
+
 def RSH(l,m,cs,x,y,z):
     """Evaluate regular spherical harmonics.
     
@@ -314,5 +348,5 @@ for i in range(multsites):
 
     A = Amat(i, xyzmult, xyzq, r1, r2, lmax[i], A)
     print(f"A.shape={A.shape}\nA={A}")
-
-
+    b = bvec(i, xyzmult, xyzq, r1, r2, lmax[i], multipoles, b)
+    print(f"b.shape={b.shape}\nb={b}")
