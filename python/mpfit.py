@@ -239,8 +239,458 @@ def RSH(l,m,cs,x,y,z):
     
     return rsharray[l, m, cs]
 
+def pythag(a, b):
+    """
+    Compute sqrt(a^2 + b^2) without destructive underflow or overflow.
+    This is a faithful translation of the Fortran pythag function.
+    """
+    absa = abs(a)
+    absb = abs(b)
+    if absa > absb:
+        return absa * np.sqrt(1.0 + (absb/absa)**2)
+    else:
+        if absb == 0.0:
+            return 0.0
+        else:
+            return absb * np.sqrt(1.0 + (absa/absb)**2)
+
+def svdcmp_sp(a, w, v):
+    """
+    Singular Value Decomposition (SVD) implementation translated from Fortran.
+    This function decomposes matrix 'a' into U*W*V^T where U is stored in 'a',
+    W is a diagonal matrix stored in 'w', and V is stored in 'v'.
+    """
+    # Get dimensions of input matrix
+    m = a.shape[0]  # Number of rows
+    n = a.shape[1]  # Number of columns
+    
+    # Check that dimensions match (equivalent to Fortran's assert_eq)
+    assert n == v.shape[0] and n == v.shape[1] and n == w.shape[0], 'svdcmp_sp: dimension mismatch'
+    
+    # Initialize variables (same as Fortran)
+    g = 0.0
+    scale = 0.0
+    
+    # Create temporary arrays (equivalent to Fortran's ALLOCATE)
+    tempm = np.zeros(m)  # Equivalent to tempm(m) in Fortran
+    rv1 = np.zeros(n)  # Equivalent to rv1(n) in Fortran
+    tempn = np.zeros(n)  # Equivalent to tempn(n) in Fortran
+    
+    # Main loop (equivalent to Fortran's DO i=1,n)
+    for i in range(n):
+        l = i + 1  # Equivalent to l=i+1 in Fortran
+        
+        # Equivalent to rv1(i)=scale*g in Fortran
+        rv1[i] = scale * g
+        
+        # Reset variables (same as Fortran)
+        g = 0.0
+        scale = 0.0
+        
+        # Equivalent to IF (i <= m) THEN in Fortran
+        # Note: In Fortran, array indices start at 1, so i <= m means i is less than or equal to m
+        # In Python, array indices start at 0, so i < m is the equivalent condition
+        if i < m:
+            # Equivalent to scale=SUM(ABS(a(i:m,i))) in Fortran
+            # SUM in Fortran becomes np.sum in Python
+            # ABS in Fortran becomes np.abs in Python
+            # a(i:m,i) in Fortran becomes a[i:m,i] in Python
+            scale = np.sum(np.abs(a[i:m, i]))
+            
+            # Equivalent to IF (scale /= 0.0) THEN in Fortran
+            if scale != 0.0:
+                # Equivalent to a(i:m,i)=a(i:m,i)/scale in Fortran
+                a[i:m, i] = a[i:m, i] / scale
+                
+                # Equivalent to s=DOT_PRODUCT(a(i:m,i),a(i:m,i)) in Fortran
+                s = np.dot(a[i:m, i], a[i:m, i])
+                
+                # Equivalent to f=a(i,i) in Fortran
+                f = a[i, i]
+                
+                # Equivalent to g=-SIGN(SQRT(s),f) in Fortran
+                # SIGN in Fortran becomes np.sign in Python
+                # SQRT in Fortran becomes np.sqrt in Python
+                g = -np.sign(f) * np.sqrt(s)
+                
+                # Equivalent to h=f*g-s in Fortran
+                h = f * g - s
+                
+                # Equivalent to a(i,i)=f-g in Fortran
+                a[i, i] = f - g
+                
+                # Equivalent to tempn(l:n)=MATMUL(a(i:m,i),a(i:m,l:n))/h in Fortran
+                tempn[l:n] = np.dot(a[i:m, i], a[i:m, l:n]) / h
+                
+                # Equivalent to a(i:m,l:n)=a(i:m,l:n)+outerprod(a(i:m,i),tempn(l:n)) in Fortran
+                # outerprod in Fortran becomes np.outer in Python
+                a[i:m, l:n] = a[i:m, l:n] + np.outer(a[i:m, i], tempn[l:n])
+                
+                # Equivalent to a(i:m,i)=scale*a(i:m,i) in Fortran
+                a[i:m, i] = scale * a[i:m, i]
+        
+        # Equivalent to w(i)=scale*g in Fortran
+        w[i] = scale * g
+        
+        # Reset variables (same as Fortran)
+        g = 0.0
+        scale = 0.0
+        
+        # Equivalent to IF ((i <= m) .AND. (i /= n)) THEN in Fortran
+        if i < m and i != n-1:  # Note: n-1 because Python is 0-based
+            # Equivalent to scale=SUM(ABS(a(i,l:n))) in Fortran
+            scale = np.sum(np.abs(a[i, l:n]))
+            
+            # Equivalent to IF (scale /= 0.0) THEN in Fortran
+            if scale != 0.0:
+                # Equivalent to a(i,l:n)=a(i,l:n)/scale in Fortran
+                a[i, l:n] = a[i, l:n] / scale
+                
+                # Equivalent to s=DOT_PRODUCT(a(i,l:n),a(i,l:n)) in Fortran
+                s = np.dot(a[i, l:n], a[i, l:n])
+                
+                # Equivalent to f=a(i,l) in Fortran
+                f = a[i, l]
+                
+                # Equivalent to g=-SIGN(SQRT(s),f) in Fortran
+                g = -np.sign(f) * np.sqrt(s)
+                
+                # Equivalent to h=f*g-s in Fortran
+                h = f * g - s
+                
+                # Equivalent to a(i,l)=f-g in Fortran
+                a[i, l] = f - g
+                
+                # Equivalent to rv1(l:n)=a(i,l:n)/h in Fortran
+                rv1[l:n] = a[i, l:n] / h
+                
+                # Equivalent to tempm(l:m)=MATMUL(a(l:m,l:n),a(i,l:n)) in Fortran
+                tempm[l:m] = np.dot(a[l:m, l:n], a[i, l:n])
+                
+                # Equivalent to a(l:m,l:n)=a(l:m,l:n)+outerprod(tempm(l:m),rv1(l:n)) in Fortran
+                a[l:m, l:n] = a[l:m, l:n] + np.outer(tempm[l:m], rv1[l:n])
+                
+                # Equivalent to a(i,l:n)=scale*a(i,l:n) in Fortran
+                a[i, l:n] = scale * a[i, l:n]
+    
+    # Equivalent to anorm=MAXVAL(ABS(w)+ABS(rv1)) in Fortran
+    # MAXVAL in Fortran becomes np.max in Python
+    anorm = np.max(np.abs(w) + np.abs(rv1))
+    
+    # Equivalent to DO i=n,1,-1 in Fortran
+    # Fortran's DO i=n,1,-1 means loop from n down to 1 with step -1
+    # In Python, this becomes range(n-1, -1, -1) which gives [n-1, n-2, ..., 0]
+    for i in range(n-1, -1, -1):
+        if i < n-1:  # Note: n-1 because Python is 0-based
+            if g != 0.0:
+                # Equivalent to v(l:n,i)=(a(i,l:n)/a(i,l))/g in Fortran
+                v[l:n, i] = (a[i, l:n] / a[i, l]) / g
+                
+                # Equivalent to tempn(l:n)=MATMUL(a(i,l:n),v(l:n,l:n)) in Fortran
+                tempn[l:n] = np.dot(a[i, l:n], v[l:n, l:n])
+                
+                # Equivalent to v(l:n,l:n)=v(l:n,l:n)+outerprod(v(l:n,i),tempn(l:n)) in Fortran
+                v[l:n, l:n] = v[l:n, l:n] + np.outer(v[l:n, i], tempn[l:n])
+            
+            # Equivalent to v(i,l:n)=0.0 in Fortran
+            v[i, l:n] = 0.0
+            
+            # Equivalent to v(l:n,i)=0.0 in Fortran
+            v[l:n, i] = 0.0
+        
+        # Equivalent to v(i,i)=1.0 in Fortran
+        v[i, i] = 1.0
+        
+        # Equivalent to g=rv1(i) in Fortran
+        g = rv1[i]
+        
+        # Equivalent to l=i in Fortran
+        l = i
+    
+    # Equivalent to DO i=MIN(m,n),1,-1 in Fortran
+    # MIN in Fortran becomes min in Python
+    for i in range(min(m, n)-1, -1, -1):
+        l = i + 1
+        g = w[i]
+        
+        # Equivalent to a(i,l:n)=0.0 in Fortran
+        a[i, l:n] = 0.0
+        
+        # Equivalent to IF (g /= 0.0) THEN in Fortran
+        if g != 0.0:
+            # Equivalent to g=1.0_sp/g in Fortran
+            # _sp in Fortran indicates single precision
+            # In Python, we don't need to specify precision
+            g = 1.0 / g
+            
+            # Equivalent to tempn(l:n)=(MATMUL(a(l:m,i),a(l:m,l:n))/a(i,i))*g in Fortran
+            tempn[l:n] = np.dot(a[l:m, i], a[l:m, l:n]) / a[i, i] * g
+            
+            # Equivalent to a(i:m,l:n)=a(i:m,l:n)+outerprod(a(i:m,i),tempn(l:n)) in Fortran
+            a[i:m, l:n] = a[i:m, l:n] + np.outer(a[i:m, i], tempn[l:n])
+            
+            # Equivalent to a(i:m,i)=a(i:m,i)*g in Fortran
+            a[i:m, i] = a[i:m, i] * g
+        else:
+            # Equivalent to a(i:m,i)=0.0 in Fortran
+            a[i:m, i] = 0.0
+        
+        # Equivalent to a(i,i)=a(i,i)+1.0_sp in Fortran
+        a[i, i] = a[i, i] + 1.0
+    
+    # Equivalent to DO k=n,1,-1 in Fortran
+    for k in range(n-1, -1, -1):
+        # Equivalent to DO its=1,30 in Fortran
+        for its in range(30):
+            # Equivalent to DO l=k,1,-1 in Fortran
+            for l in range(k, -1, -1):
+                # Equivalent to nm=l-1 in Fortran
+                nm = l - 1
+                
+                # Equivalent to IF ((ABS(rv1(l))+anorm) == anorm) EXIT in Fortran
+                # EXIT in Fortran becomes break in Python
+                if (np.abs(rv1[l]) + anorm) == anorm:
+                    break
+                
+                # Equivalent to IF ((ABS(w(nm))+anorm) == anorm) THEN in Fortran
+                if nm >= 0 and (np.abs(w[nm]) + anorm) == anorm:
+                    c = 0.0
+                    s = 1.0
+                    
+                    # Equivalent to DO i=l,k in Fortran
+                    for i in range(l, k+1):
+                        # Equivalent to f=s*rv1(i) in Fortran
+                        f = s * rv1[i]
+                        
+                        # Equivalent to rv1(i)=c*rv1(i) in Fortran
+                        rv1[i] = c * rv1[i]
+                        
+                        # Equivalent to IF ((ABS(f)+anorm) == anorm) EXIT in Fortran
+                        if (np.abs(f) + anorm) == anorm:
+                            break
+                        
+                        # Equivalent to g=w(i) in Fortran
+                        g = w[i]
+                        h = pythag(f, g)
+                        w[i] = h
+                        
+                        # Equivalent to h=1.0_sp/h in Fortran
+                        h = 1.0 / h
+                        
+                        # Equivalent to c= (g*h) in Fortran
+                        c = g * h
+                        
+                        # Equivalent to s=-(f*h) in Fortran
+                        s = -(f * h)
+                        
+                        # Equivalent to tempm(1:m)=a(1:m,nm) in Fortran
+                        tempm = a[:, nm].copy()
+                        
+                        # Equivalent to a(1:m,nm)=a(1:m,nm)*c+a(1:m,i)*s in Fortran
+                        a[:, nm] = a[:, nm] * c + a[:, i] * s
+                        
+                        # Equivalent to a(1:m,i)=-tempm(1:m)*s+a(1:m,i)*c in Fortran
+                        a[:, i] = -tempm * s + a[:, i] * c
+                    
+                    # Equivalent to EXIT in Fortran
+                    break
+                
+                # Equivalent to z=w(k) in Fortran
+                z = w[k]
+                
+                # Equivalent to IF (l == k) THEN in Fortran
+                if l == k:
+                    # Equivalent to IF (z < 0.0) THEN in Fortran
+                    if z < 0.0:
+                        # Equivalent to w(k)=-z in Fortran
+                        w[k] = -z
+                        
+                        # Equivalent to v(1:n,k)=-v(1:n,k) in Fortran
+                        v[:, k] = -v[:, k]
+                    
+                    # Equivalent to EXIT in Fortran
+                    break
+                
+                # Equivalent to IF (its == 30) CALL nrerror('svdcmp_sp: no convergence in svdcmp') in Fortran
+                # nrerror in Fortran becomes raise ValueError in Python
+                if its == 29:  # 0-based indexing in Python
+                    raise ValueError('svdcmp_sp: no convergence in svdcmp')
+                
+                # Equivalent to x=w(l) in Fortran
+                x = w[l]
+                
+                # Equivalent to nm=k-1 in Fortran
+                nm = k - 1
+                
+                # Equivalent to y=w(nm) in Fortran
+                y = w[nm]
+                
+                # Equivalent to g=rv1(nm) in Fortran
+                g = rv1[nm]
+                
+                # Equivalent to h=rv1(k) in Fortran
+                h = rv1[k]
+                
+                # Equivalent to f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_sp*h*y) in Fortran
+                f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y)
+                
+                # Equivalent to g=pythag(f,1.0_sp) in Fortran
+                g = pythag(f, 1.0)
+                
+                # Equivalent to f=((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x in Fortran
+                f = ((x-z)*(x+z)+h*((y/(f+np.sign(g,f)))-h))/x
+                
+                # Equivalent to c=1.0 in Fortran
+                c = 1.0
+                
+                # Equivalent to s=1.0 in Fortran
+                s = 1.0
+                
+                # Equivalent to DO j=l,nm in Fortran
+                for j in range(l, nm+1):
+                    # Equivalent to i=j+1 in Fortran
+                    i = j + 1
+                    
+                    # Equivalent to g=rv1(i) in Fortran
+                    g = rv1[i]
+                    
+                    # Equivalent to y=w(i) in Fortran
+                    y = w[i]
+                    
+                    # Equivalent to h=s*g in Fortran
+                    h = s * g
+                    
+                    # Equivalent to g=c*g in Fortran
+                    g = c * g
+                    
+                    # Equivalent to z=pythag(f,h) in Fortran
+                    z = pythag(f, h)
+                    
+                    # Equivalent to rv1(j)=z in Fortran
+                    rv1[j] = z
+                    
+                    # Equivalent to c=f/z in Fortran
+                    c = f / z
+                    
+                    # Equivalent to s=h/z in Fortran
+                    s = h / z
+                    
+                    # Equivalent to f= (x*c)+(g*s) in Fortran
+                    f = (x*c) + (g*s)
+                    
+                    # Equivalent to g=-(x*s)+(g*c) in Fortran
+                    g = -(x*s) + (g*c)
+                    
+                    # Equivalent to h=y*s in Fortran
+                    h = y * s
+                    
+                    # Equivalent to y=y*c in Fortran
+                    y = y * c
+                    
+                    # Equivalent to tempn(1:n)=v(1:n,j) in Fortran
+                    tempn = v[:, j].copy()
+                    
+                    # Equivalent to v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s in Fortran
+                    v[:, j] = v[:, j] * c + v[:, i] * s
+                    
+                    # Equivalent to v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c in Fortran
+                    v[:, i] = -tempn * s + v[:, i] * c
+                    
+                    # Equivalent to z=pythag(f,h) in Fortran
+                    z = pythag(f, h)
+                    
+                    # Equivalent to w(j)=z in Fortran
+                    w[j] = z
+                    
+                    # Equivalent to IF (z /= 0.0) THEN in Fortran
+                    if z != 0.0:
+                        # Equivalent to z=1.0_sp/z in Fortran
+                        z = 1.0 / z
+                        
+                        # Equivalent to c=f*z in Fortran
+                        c = f * z
+                        
+                        # Equivalent to s=h*z in Fortran
+                        s = h * z
+                    
+                    # Equivalent to f= (c*g)+(s*y) in Fortran
+                    f = (c*g) + (s*y)
+                    
+                    # Equivalent to x=-(s*g)+(c*y) in Fortran
+                    x = -(s*g) + (c*y)
+                    
+                    # Equivalent to tempm(1:m)=a(1:m,j) in Fortran
+                    tempm = a[:, j].copy()
+                    
+                    # Equivalent to a(1:m,j)=a(1:m,j)*c+a(1:m,i)*s in Fortran
+                    a[:, j] = a[:, j] * c + a[:, i] * s
+                    
+                    # Equivalent to a(1:m,i)=-tempm(1:m)*s+a(1:m,i)*c in Fortran
+                    a[:, i] = -tempm * s + a[:, i] * c
+                
+                # Equivalent to rv1(l)=0.0 in Fortran
+                rv1[l] = 0.0
+                
+                # Equivalent to rv1(k)=f in Fortran
+                rv1[k] = f
+                
+                # Equivalent to w(k)=x in Fortran
+                w[k] = x
+    
+    return a, w, v
 
 
+def svbksb_sp(u, w, v, b):
+    """
+    Solve A*x = b using the SVD decomposition of A.
+    
+    Parameters:
+    -----------
+    u : ndarray
+        Left singular vectors (U matrix from SVD)
+    w : ndarray
+        Singular values
+    v : ndarray
+        Right singular vectors (V matrix from SVD)
+    b : ndarray
+        Right-hand side vector
+        
+    Returns:
+    --------
+    x : ndarray
+        Solution vector
+    """
+    # Get dimensions
+    mdum = u.shape[0]
+    ndum = u.shape[1]
+    
+    # Check dimensions match (equivalent to assert_eq in Fortran)
+    assert mdum == len(b), 'svbksb_sp: mdum'
+    assert ndum == v.shape[0] and ndum == v.shape[1] and ndum == len(w) and ndum == len(b), 'svbksb_sp: ndum'
+    
+    # Create temporary array
+    tmp = np.zeros(ndum)
+    
+    # Compute U^T * b / w (with handling for zero singular values)
+    # This is equivalent to the WHERE statement in Fortran
+    for j in range(ndum):
+        if w[j] != 0.0:
+            s = 0.0
+            for i in range(mdum):
+                s += b[i] * u[i, j]
+            tmp[j] = s / w[j]
+        else:
+            tmp[j] = 0.0
+    
+    # Multiply by V^T to get the solution
+    x = np.zeros(ndum)
+    for j in range(ndum):
+        s = 0.0
+        for jj in range(ndum):
+            s += v[jj, j] * tmp[jj]  # Fixed: v[j, jj] -> v[jj, j] to match Fortran's column-major order
+        x[j] = s
+    
+    return x
 
 # integration bounds 
 r1 = 6.78 # inner radius 
@@ -248,7 +698,7 @@ r2 = 12.45 # outer radius
 small = 1.0e-4 # SVD threshold 
 maxl = 4 # maximum multipole order 
 
-inpfile = sys.argv[1] if len(sys.argv) > 1 else "temp_format.dma"
+inpfile = sys.argv[1] if len(sys.argv) > 1 else "gdma/temp_format.dma"
 multsites = numbersites(inpfile)
 print(f"multsites={multsites}")
 
@@ -350,3 +800,37 @@ for i in range(multsites):
     print(f"A.shape={A.shape}\nA={A}")
     b = bvec(i, xyzmult, xyzq, r1, r2, lmax[i], multipoles, b)
     print(f"b.shape={b.shape}\nb={b}")
+
+    Astore = A.copy()
+    
+    A, w, v = svdcmp_sp(A, w, v)
+    print(f"A.shape={A.shape}\nA={A}")
+    print(f"w.shape={w.shape}\nw={w}")
+    print(f"v.shape={v.shape}\nv={v}")
+
+    # Set small singular values to zero (equivalent to lines 119-123 in mpfit.f90)
+    for j in range(len(w)):
+        if w[j] < small:
+            w[j] = 0.0
+    
+    # Call svbksb_sp to solve the system
+    q = svbksb_sp(A, w, v, b)
+    print(f"q.shape={q.shape}\nq={q}")
+    
+    # Test the solution (equivalent to btst=MATMUL(Astore,q) in Fortran)
+    btst = np.dot(Astore, q)
+    print(f"btst.shape={btst.shape}\nbtst={btst}")
+    print(f"b.shape={b.shape}\nb={b}")
+    
+    # Add the fitted charges to the total array qstore
+    count = 0
+    for j in range(chargesites):
+        if quse[j] == 1:
+            qstore[j] = qstore[j] + q[count]
+            count += 1
+
+# Print the final charges for each multipole site
+for j in range(multsites):
+    print(f"{atomtype[j]}: {qstore[j]:8.5f}")
+    
+    
