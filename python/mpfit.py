@@ -1,5 +1,7 @@
 import sys
 import numpy as np 
+from scipy.special import sph_harm_y, factorial
+
 
 def _print_multipole_moments(i, mm, lmax):
     """
@@ -144,16 +146,20 @@ def Amat(nsite, xyzmult, xyzcharge, r1, r2, maxl, A):
             _sum = 0.0
             for l in range(0, maxl+1):
                 if l == 0:
-                    _sum = (1.0 / (2.0*l + 1.0)) * W[0] * RSH(0, 0, 0, xj, yj, zj) * RSH(0, 0, 0, xk, yk, zk)
+                    _sum = (1.0 / (2.0*l + 1.0)) * W[0] * RSH_scipy(0, 0, 0, xj, yj, zj) * RSH_scipy(0, 0, 0, xk, yk, zk)
                 else:
                     for m in range(l+1):
                         if m == 0:
-                            _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (RSH(l, 0, 0, xj, yj, zj) * RSH(l, 0, 0, xk, yk, zk))
+                            print(f"RSH(l={l}, 0, 0, xj={xj}, yj={yj}, zj={zj})={RSH(l, 0, 0, xj, yj, zj)}")
+                            print(f"RSH_scipy(l={l}, 0, 0, xj={xj}, yj={yj}, zj={zj})={RSH_scipy(l, 0, 0, xj, yj, zj)}")
+                            _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (RSH_scipy(l, 0, 0, xj, yj, zj) * RSH_scipy(l, 0, 0, xk, yk, zk))
                         else:
                             # For m>0, include both real and imaginary parts
+                            print(f"RSH(l={l}, m={m}, 0, xj={xj}, yj={yj}, zj={zj})={RSH(l, m, 0, xj, yj, zj)}")
+                            print(f"RSH_scipy(l={l}, m={m}, 0, xj={xj}, yj={yj}, zj={zj})={RSH_scipy(l, m, 0, xj, yj, zj)}")
                             _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (
-                                RSH(l, m, 0, xj, yj, zj) * RSH(l, m, 0, xk, yk, zk) +
-                                RSH(l, m, 1, xj, yj, zj) * RSH(l, m, 1, xk, yk, zk)
+                                RSH_scipy(l, m, 0, xj, yj, zj) * RSH_scipy(l, m, 0, xk, yk, zk) +
+                                RSH_scipy(l, m, 1, xj, yj, zj) * RSH_scipy(l, m, 1, xk, yk, zk)
                             )
             A[j, k] = _sum
     return A
@@ -177,20 +183,38 @@ def bvec(nsite, xyzmult, xyzcharge, r1, r2, maxl, multipoles, b):
             if l == 0:
                 # Special case for l = 0
                 _sum = (1.0 / (2.0 * l + 1.0)) * W[0] * \
-                        multipoles[nsite, 0, 0, 0] * RSH(0, 0, 0, xk, yk, zk)
+                        multipoles[nsite, 0, 0, 0] * RSH_scipy(0, 0, 0, xk, yk, zk)
             else:
                 for m in range(l+1):
                     if m == 0: 
                         # m = 0 case
                         _sum += (1.0 / (2.0 * l + 1.0)) * W[l] * \
-                                multipoles[nsite, l, 0, 0] * RSH(l, 0, 0, xk, yk, zk)
+                                multipoles[nsite, l, 0, 0] * RSH_scipy(l, 0, 0, xk, yk, zk)
                     else:
                         # m > 0 case
                         _sum += (1.0 / (2.0 * l + 1.0)) * W[l] * \
-                                   (multipoles[nsite, l, m, 0] * RSH(l, m, 0, xk, yk, zk) +
-                                    multipoles[nsite, l, m, 1] * RSH(l, m, 1, xk, yk, zk))
+                                   (multipoles[nsite, l, m, 0] * RSH_scipy(l, m, 0, xk, yk, zk) +
+                                    multipoles[nsite, l, m, 1] * RSH_scipy(l, m, 1, xk, yk, zk))
         b[k] = _sum
     return b
+
+def RSH_scipy(l, m, cs, x, y, z):
+    """Evaluate regular solid harmonics using scipy."""
+    r = np.sqrt(x*x + y*y + z*z)
+    if r < 1e-16:
+        return 1.0 if (l == 0 and m == 0 and cs == 0) else 0.0
+    theta = np.arccos(z / r)  
+    phi   = np.arctan2(y, x)  
+    
+    Y = sph_harm_y(l, m, theta, phi)
+    
+    # 'Normalization' factor to remove from the built-in Y_l^m:
+    norm = np.sqrt(4.0 * np.pi / (2.*l + 1.))
+    
+    if m == 0:
+        return norm * r**l * Y.real
+    else:
+        return np.sqrt(2.) * (-1.)**m * norm * r**l * (Y.real if cs == 0 else Y.imag)
 
 def RSH(l,m,cs,x,y,z):
     """Evaluate regular spherical harmonics.
