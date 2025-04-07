@@ -67,8 +67,9 @@ test_molecule() {
         
         TOTAL_DIFF=$(echo "scale=10; $TOTAL_DIFF + $DIFF" | bc)
         
-        # Check if difference is within tolerance (1e-5)
-        if (( $(echo "$DIFF > 0.00001" | bc -l) )); then
+        # Check if difference is within tolerance (1e-3...1e-5)
+	THRESHOLD=0.00001
+        if (( $(echo "$DIFF > $THRESHOLD" | bc -l) )); then
             ALL_MATCH=false
             echo -e "${RED}Mismatch at value $i: Python=$PYTHON_VAL, Fortran=$FORTRAN_VAL, Diff=$DIFF, Percent Diff=$SCIENTIFIC_NOTATION%${NC}"
         fi
