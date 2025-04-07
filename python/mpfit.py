@@ -278,9 +278,6 @@ def svdcmp_sp(a, w, v):
     
     # Main loop (equivalent to Fortran's DO i=1,n)
     for i in range(n):
-        print(f"FOR #1: SVD: a_{i} = {a}")
-        print(f"FOR #1: SVD: w_{i} = {w}")
-        print(f"FOR #1: SVD: v_{i} = {v}")
         l = i + 1  # Equivalent to l=i+1 in Fortran
         
         # Equivalent to rv1(i)=scale*g in Fortran
@@ -384,9 +381,6 @@ def svdcmp_sp(a, w, v):
     # Fortran's DO i=n,1,-1 means loop from n down to 1 with step -1
     # In Python, this becomes range(n-1, -1, -1) which gives [n-1, n-2, ..., 0]
     for i in range(n-1, -1, -1):
-        print(f"FOR #2: SVD: a_{i} = {a}")
-        print(f"FOR #2: SVD: w_{i} = {w}")
-        print(f"FOR #2: SVD: v_{i} = {v}")
         
         if i < n-1:  # Note: n-1 because Python is 0-based
             if g != 0.0:
@@ -417,9 +411,6 @@ def svdcmp_sp(a, w, v):
     # Equivalent to DO i=MIN(m,n),1,-1 in Fortran
     # MIN in Fortran becomes min in Python
     for i in range(min(m, n)-1, -1, -1):
-        print(f"FOR #3: SVD: a_{i} = {a}")
-        print(f"FOR #3: SVD: w_{i} = {w}")
-        print(f"FOR #3: SVD: v_{i} = {v}")
         l = i + 1
         g = w[i]
         
@@ -450,12 +441,8 @@ def svdcmp_sp(a, w, v):
     
     # Equivalent to DO k=n,1,-1 in Fortran
     for k in range(n-1, -1, -1):
-        print(f"FOR #4: SVD: a_{k} = {a}")
-        print(f"FOR #4: SVD: w_{k} = {w}")
-        print(f"FOR #4: SVD: v_{k} = {v}")
         # Equivalent to DO its=1,30 in Fortran
         for its in range(30):
-            print(f"k={k}, its={its}")
             # Equivalent to DO l=k,1,-1 in Fortran
             for l in range(k, -1, -1):
                 # Equivalent to nm=l-1 in Fortran
@@ -463,13 +450,9 @@ def svdcmp_sp(a, w, v):
                 
                 # Equivalent to IF ((ABS(rv1(l))+anorm) == anorm) EXIT in Fortran
                 # EXIT in Fortran becomes break in Python
-                print(f"np.abs(rv1[l]) + anorm={np.abs(rv1[l]) + anorm}")
-                print(f"abs((np.abs(rv1[l]) + anorm) - anorm)={abs((np.abs(rv1[l]) + anorm) - anorm)}")
                 if abs((np.abs(rv1[l]) + anorm) - anorm) < 1e-14: # == anorm:
                     break
-                print(f"nm={nm}, l={l}") 
                 # Equivalent to IF ((ABS(w(nm))+anorm) == anorm) THEN in Fortran
-                print(f"abs((np.abs(w[nm]) + anorm) - anorm)={abs((np.abs(w[nm]) + anorm) - anorm)}")
                 if nm >= 0 and abs((np.abs(w[nm]) + anorm) - anorm) < 1e-14: # == anorm:
                     
                     c = 0.0
@@ -518,7 +501,6 @@ def svdcmp_sp(a, w, v):
             
             # Equivalent to IF (l == k) THEN in Fortran
             if l == k:
-                print(f"l == k, z={z}")
                 # Equivalent to IF (z < 0.0) THEN in Fortran
                 if z < 0.0:
                     # Equivalent to w(k)=-z in Fortran
@@ -564,7 +546,6 @@ def svdcmp_sp(a, w, v):
             
             # Equivalent to s=1.0 in Fortran
             s = 1.0
-            print(f"g={g}\nf={f}") 
             # Equivalent to DO j=l,nm in Fortran
             for j in range(l, nm+1):
                 # Equivalent to i=j+1 in Fortran
@@ -693,8 +674,6 @@ maxl = 4 # maximum multipole order
 
 inpfile = sys.argv[1] if len(sys.argv) > 1 else "gdma/temp_format.dma"
 multsites = numbersites(inpfile)
-print(f" %%%%%% BEGINNING mpfit.py %%%%%%")
-print(f"multsites={multsites}")
 
 multipoles = np.zeros((multsites, maxl+1, maxl+1, 2))
 xyzmult    = np.zeros((multsites, 3))
@@ -714,17 +693,14 @@ for i in range(multsites):
         if midbond[i,j] == 1:
             count += 1
 chargesites = multsites + count
-print(f"chargesites={chargesites}")
 
 xyzcharge = np.zeros((chargesites, 3))
 qstore = np.zeros(chargesites)
 quse = np.zeros(chargesites) # excluding redundant qstore(:)=0.0
 
 lmax, mm, ms, atomtype = getmultmoments(inpfile, multsites, lmax, multipoles, xyzmult, atomtype)
-print(f"lmax={lmax}\nmm={mm}\nms={ms}\natomtype={atomtype}")
 
 qs = gencharges(xyzmult, xyzcharge, midbond)
-print(f"qs={qs}")
 
 # Create rvdw, which determines radius encompassing charges
 # for each multipole site. For instance, if there is only a monopole
@@ -739,19 +715,15 @@ for i in range(multsites):
     hyd = atomtype[i].find('H')
     
     if hyd == -1:  # No 'H' found
-        print(hyd)
         rvdw[i] = 3.0 # NOTE: this essentially takes out certain multipole sites, so is the final partial charge sensitive to this parameter?
     else:
         # Commented out in original code
         # rvdw[i] = 1.0 # NOTE: so the 'H' still end up using rvdw=3.0?
         pass
-print(f"rvdw={rvdw}")
-
 
 # fit charges for each multipole site
 # then add them to the total charge array
 for i in range(multsites):
-    print(f"multisite #{i}") 
     # determine charge positions are close enough to fit given multsite
     count = 0
     for j in range(chargesites):
@@ -761,7 +733,6 @@ for i in range(multsites):
             (xyzmult[i, 1] - xyzcharge[j, 1])**2 +
             (xyzmult[i, 2] - xyzcharge[j, 2])**2
         )
-        print(f"rqm_{i}{j} = {rqm}")
         if rqm < rvdw[i]:
             quse[j] = 1
             count += 1
@@ -769,7 +740,6 @@ for i in range(multsites):
         else:
             quse[j] = 0
     qsites = count
-    print(f"qsites={qsites}")
 
     A = np.zeros((qsites, qsites))
     Astore = np.zeros((qsites, qsites))
@@ -788,34 +758,25 @@ for i in range(multsites):
             xyzq[count, 1] = xyzcharge[j, 1]
             xyzq[count, 2] = xyzcharge[j, 2]
             count += 1
-    print(f"xyzq.shape={xyzq.shape}\nxyzq={xyzq}")
 
     A = Amat(i, xyzmult, xyzq, r1, r2, lmax[i], A)
-    print(f"A.shape={A.shape}\nA={A}")
     b = bvec(i, xyzmult, xyzq, r1, r2, lmax[i], multipoles, b)
-    print(f"b.shape={b.shape}\nb={b}")
 
     Astore = A.copy()
     
     A, w, v = svdcmp_sp(A, w, v)
-    print(f"A.shape={A.shape}\nA={A}")
 
     # Set small singular values to zero (equivalent to lines 119-123 in mpfit.f90)
     for j in range(len(w)):
         if w[j] < small:
             w[j] = 0.0
-    print(f"w.shape={w.shape}\nw={w}")
-    print(f"v.shape={v.shape}\nv={v}")
     
     # Call svbksb_sp to solve the system
     
     q = svbksb_sp(A, w, v, b)
-    print(f"q.shape={q.shape}\nq={q}")
     
     # Test the solution (equivalent to btst=MATMUL(Astore,q) in Fortran)
     btst = np.dot(Astore, q)
-    print(f"btst.shape={btst.shape}\nbtst={btst}")
-    print(f"b.shape={b.shape}\nb={b}")
     
     # Add the fitted charges to the total array qstore
     count = 0

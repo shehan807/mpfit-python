@@ -1,10 +1,10 @@
 PROGRAM mpfit
 
   USE interfac
-  REAL*8,PARAMETER:: r1=6.78D0,r2=12.45D0,small=1.0D-4 !r1=5.26,r2=8.67
+  REAL*8,PARAMETER:: r1=6.78,r2=12.45,small=1.0D-4 !r1=5.26,r2=8.67
   Integer,parameter::maxl=4  !!!!!!maxl is the highest l value of all the sites
   CHARACTER(50)::inpfile,chargefile
-  INTEGER::multsites,chargesites,count,i,j,k,qsites,printt,hyd,x
+  INTEGER::multsites,chargesites,count,i,j,k,qsites,printt,hyd
   REAL*8::rqm
   INTEGER,DIMENSION(:),ALLOCATABLE::quse,lmax
   INTEGER,DIMENSION(:,:),ALLOCATABLE::midbond
@@ -76,12 +76,11 @@ enddo
 !!!!!!!!!!!!!!!!!! to the total charge aray qstore
 
   DO i=1,multsites
-     WRITE(*,*) "multisite #", i ! DEBUG
+
 !!!!!!!!determine which charge positions are close enough to fit given multsite
      count=0
      DO j=1,chargesites
         rqm=((xyzmult(i,1)-xyzcharge(j,1))**2+(xyzmult(i,2)-xyzcharge(j,2))**2+(xyzmult(i,3)-xyzcharge(j,3))**2)**.5
-        WRITE(*,*) "rqm_",i,j," = ",rqm ! DEBUG
         IF (rqm < rvdw(i)) THEN
            quse(j)=1
            count=count+1
@@ -90,8 +89,7 @@ enddo
         ENDIF
      ENDDO
      qsites=count
-     
-     WRITE(*,*) "qsites=",qsites ! DEBUG
+
 !!!!!!!!!!!!!!!!!!allocate A,q,b,etc to correct dimensionality for given site
      IF(ALLOCATED(A)) THEN
         DEALLOCATE(A,Astore,v,w,q,b,xyzq,btst)
@@ -108,39 +106,14 @@ enddo
            count=count+1
         ENDIF
      ENDDO
-     WRITE(*,*) "xyzq.shape=",SHAPE(xyzq) ! DEBUG
-     DO x = 1, 5
-        WRITE(*,*) "xyzqi(",x,")=",xyzq(x,:) ! DEBUG
-     ENDDO
 
 
      CALL Amat(i,xyzmult,xyzq,r1,r2,lmax(i),A)
      CALL bvec(i,xyzmult,xyzq,r1,r2,lmax(i),multipoles,b)
-     
-     WRITE(*,*) "A.shape=",SHAPE(A) ! DEBUG
-     DO x = 1, SIZE(A,1)
-        WRITE(*,*) "A(",x,")=",A(x,:) ! DEBUG
-     ENDDO
-     WRITE(*,*) "b.shape=",SHAPE(b) ! DEBUG
-     DO x = 1, SIZE(b)
-        WRITE(*,*) "b(",x,")=",b(x) ! DEBUG
-     ENDDO
 
      Astore(:,:)=A(:,:)
 
      CALL svdcmp_sp(A,w,v)
-     WRITE(*,*) "A.shape=",SHAPE(A) ! DEBUG
-     DO x = 1, SIZE(A,1)
-        WRITE(*,*) "A(",x,")=",A(x, :) ! DEBUG
-     ENDDO
-     WRITE(*,*) "w.shape=",SHAPE(w) ! DEBUG
-     DO x = 1, SIZE(w)
-        WRITE(*,*) "w(",x,")=",w(x) ! DEBUG
-     ENDDO
-     WRITE(*,*) "v.shape=",SHAPE(v) ! DEBUG
-     DO x = 1, SIZE(v,1)
-        WRITE(*,*) "v(",x,")=",v(x, :) ! DEBUG
-     ENDDO
 
 !!!!!!!!!!!in the singular value decomposition, set any small values equal to zero
      DO j=1, SIZE(w(:))
@@ -149,13 +122,9 @@ enddo
         ENDIF
      ENDDO
      CALL svbksb_sp(A,w,v,b,q)
-     WRITE(*,*) "q.shape=",SHAPE(q) ! DEBUG
-     WRITE(*,*) "q=",q ! DEBUG
 
 !!!!!!!!!!!!!!!!!test svd
      btst=MATMUL(Astore,q)
-     WRITE(*,*) "btst.shape=",SHAPE(btst) ! DEBUG
-     WRITE(*,*) "btst=",btst ! DEBUG
 
 !!$write(*,*) i
 !!$  do j=1,qsites
