@@ -212,21 +212,6 @@ def RSH(l, m, cs, x, y, z):
     else:
         return np.sqrt(2.) * (-1.)**m * norm * r**l * (Y.real if cs == 0 else Y.imag)
 
-def pythag(a, b):
-    """
-    Compute sqrt(a^2 + b^2) without destructive underflow or overflow.
-    This is a faithful translation of the Fortran pythag function.
-    """
-    absa = abs(a)
-    absb = abs(b)
-    if absa > absb:
-        return absa * np.sqrt(1.0 + (absb/absa)**2)
-    else:
-        if absb == 0.0:
-            return 0.0
-        else:
-            return absb * np.sqrt(1.0 + (absa/absb)**2)
-
 # integration bounds 
 r1 = 6.78 # inner radius 
 r2 = 12.45 # outer radius
