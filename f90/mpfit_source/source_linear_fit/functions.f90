@@ -266,7 +266,7 @@ SUBROUTINE svdcmp_sp(a,w,v)
   REAL(SP), DIMENSION(:,:), INTENT(INOUT) :: a
   REAL(SP), DIMENSION(:), INTENT(OUT) :: w
   REAL(SP), DIMENSION(:,:), INTENT(OUT) :: v
-  INTEGER(I4B) :: i,its,j,k,l,m,n,nm
+  INTEGER(I4B) :: i,its,j,k,l,m,n,nm,iii
   REAL(SP) :: anorm,c,f,g,h,s,scale,x,y,z
   REAL(SP), DIMENSION(SIZE(a,1)) :: tempm
   REAL(SP), DIMENSION(SIZE(a,2)) :: rv1,tempn
@@ -286,6 +286,16 @@ SUBROUTINE svdcmp_sp(a,w,v)
 	g=0.0
 	scale=0.0
 	DO i=1,n
+                WRITE(*,*) "FOR #1: SVD #",i,":" ! DEBUG
+                DO iii = 1, SIZE(a,1)
+                   WRITE(*,*) "a(",iii,")=",a(iii,:) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(w)
+                   WRITE(*,*) "w(",iii,")=",w(iii) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(v,1)
+                   WRITE(*,*) "v(",iii,")=",v(iii,:) ! DEBUG
+                ENDDO
 		l=i+1
 		rv1(i)=scale*g
 		g=0.0
@@ -325,6 +335,16 @@ SUBROUTINE svdcmp_sp(a,w,v)
 	END DO
 	anorm=MAXVAL(ABS(w)+ABS(rv1))
 	DO i=n,1,-1
+                WRITE(*,*) "FOR #2: SVD #",i,":" ! DEBUG
+                DO iii = 1, SIZE(a,1)
+                   WRITE(*,*) "a(",iii,")=",a(iii,:) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(w)
+                   WRITE(*,*) "w(",iii,")=",w(iii) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(v,1)
+                   WRITE(*,*) "v(",iii,")=",v(iii,:) ! DEBUG
+                ENDDO
 		IF (i < n) THEN
 			IF (g /= 0.0) THEN
 				v(l:n,i)=(a(i,l:n)/a(i,l))/g
@@ -339,6 +359,16 @@ SUBROUTINE svdcmp_sp(a,w,v)
 		l=i
 	END DO
 	DO i=MIN(m,n),1,-1
+                WRITE(*,*) "FOR #3: SVD #",i,":" ! DEBUG
+                DO iii = 1, SIZE(a,1)
+                   WRITE(*,*) "a(",iii,")=",a(iii,:) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(w)
+                   WRITE(*,*) "w(",iii,")=",w(iii) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(v,1)
+                   WRITE(*,*) "v(",iii,")=",v(iii,:) ! DEBUG
+                ENDDO
 		l=i+1
 		g=w(i)
 		a(i,l:n)=0.0
@@ -353,11 +383,29 @@ SUBROUTINE svdcmp_sp(a,w,v)
 		a(i,i)=a(i,i)+1.0_sp
 	END DO
 	DO k=n,1,-1
+                WRITE(*,*) "FOR #4: SVD #",k,":" ! DEBUG
+                DO iii = 1, SIZE(a,1)
+                   WRITE(*,*) "a(",iii,")=",a(iii,:) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(w)
+                   WRITE(*,*) "w(",iii,")=",w(iii) ! DEBUG
+                ENDDO
+                DO iii = 1, SIZE(v,1)
+                   WRITE(*,*) "v(",iii,")=",v(iii,:) ! DEBUG
+                ENDDO
 		DO its=1,30
+                        WRITE(*,*) "k=",k,"its=",its
 			DO l=k,1,-1
 				nm=l-1
+                                WRITE(*,*) "(ABS(rv1(l))+anorm)=",(ABS(rv1(l))+anorm)
+                                WRITE(*,*) "ABS((ABS(rv1(l))+anorm)-anorm)=",ABS((ABS(rv1(l))+anorm)-anorm)
+                                WRITE(*,*) ((ABS(rv1(l))+anorm) == anorm)
 				IF ((ABS(rv1(l))+anorm) == anorm) EXIT
+                                WRITE(*,*) "nm=",nm,"l=",l
+                                WRITE(*,*) "(ABS(w(nm))+anorm)=",(ABS(w(nm))+anorm)
+                                WRITE(*,*) "ABS((ABS(w(nm))+anorm)-anorm)=",ABS((ABS(w(nm))+anorm)-anorm)
 				IF ((ABS(w(nm))+anorm) == anorm) THEN
+                                        WRITE(*,*) "TRUE: ABS((ABS(w(nm))+anorm)-anorm)=",ABS((ABS(w(nm))+anorm)-anorm)
 					c=0.0
 					s=1.0
 					DO i=l,k
@@ -379,6 +427,7 @@ SUBROUTINE svdcmp_sp(a,w,v)
 			END DO
 			z=w(k)
 			IF (l == k) THEN
+                                WRITE(*,*) "l == k; z=",z
 				IF (z < 0.0) THEN
 					w(k)=-z
 					v(1:n,k)=-v(1:n,k)
@@ -394,6 +443,7 @@ SUBROUTINE svdcmp_sp(a,w,v)
 			f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_sp*h*y)
 			g=pythag(f,1.0_sp)
 			f=((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x
+                        WRITE(*,*) "g=",g,"f=",f
 			c=1.0
 			s=1.0
 			DO j=l,nm

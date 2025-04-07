@@ -127,7 +127,7 @@ def Amat(nsite, xyzmult, xyzcharge, r1, r2, maxl, A):
 
     W = np.zeros(maxl + 1)
     # compute W integration factor
-    for i in range(maxl):
+    for i in range(maxl+1):
         W[i] = (1.0 / (1.0 - 2.0*i)) * (r2**(1-2*i) - r1**(1-2*i))
 
     for j in range(ncharge):
@@ -142,11 +142,11 @@ def Amat(nsite, xyzmult, xyzcharge, r1, r2, maxl, A):
             zk = xyzcharge[k, 2] - xyzmult[nsite, 2]
 
             _sum = 0.0
-            for l in range(0, maxl):
+            for l in range(0, maxl+1):
                 if l == 0:
                     _sum = (1.0 / (2.0*l + 1.0)) * W[0] * RSH(0, 0, 0, xj, yj, zj) * RSH(0, 0, 0, xk, yk, zk)
                 else:
-                    for m in range(l):
+                    for m in range(l+1):
                         if m == 0:
                             _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (RSH(l, 0, 0, xj, yj, zj) * RSH(l, 0, 0, xk, yk, zk))
                         else:
@@ -278,6 +278,9 @@ def svdcmp_sp(a, w, v):
     
     # Main loop (equivalent to Fortran's DO i=1,n)
     for i in range(n):
+        print(f"FOR #1: SVD: a_{i} = {a}")
+        print(f"FOR #1: SVD: w_{i} = {w}")
+        print(f"FOR #1: SVD: v_{i} = {v}")
         l = i + 1  # Equivalent to l=i+1 in Fortran
         
         # Equivalent to rv1(i)=scale*g in Fortran
@@ -295,15 +298,15 @@ def svdcmp_sp(a, w, v):
             # SUM in Fortran becomes np.sum in Python
             # ABS in Fortran becomes np.abs in Python
             # a(i:m,i) in Fortran becomes a[i:m,i] in Python
-            scale = np.sum(np.abs(a[i:m, i]))
+            scale = np.sum(np.abs(a[i:m+1, i]))
             
             # Equivalent to IF (scale /= 0.0) THEN in Fortran
             if scale != 0.0:
                 # Equivalent to a(i:m,i)=a(i:m,i)/scale in Fortran
-                a[i:m, i] = a[i:m, i] / scale
+                a[i:m+1, i] = a[i:m+1, i] / scale
                 
                 # Equivalent to s=DOT_PRODUCT(a(i:m,i),a(i:m,i)) in Fortran
-                s = np.dot(a[i:m, i], a[i:m, i])
+                s = np.dot(a[i:m+1, i], a[i:m+1, i])
                 
                 # Equivalent to f=a(i,i) in Fortran
                 f = a[i, i]
@@ -320,14 +323,14 @@ def svdcmp_sp(a, w, v):
                 a[i, i] = f - g
                 
                 # Equivalent to tempn(l:n)=MATMUL(a(i:m,i),a(i:m,l:n))/h in Fortran
-                tempn[l:n] = np.dot(a[i:m, i], a[i:m, l:n]) / h
+                tempn[l:n+1] = np.dot(a[i:m+1, i], a[i:m+1, l:n+1]) / h
                 
                 # Equivalent to a(i:m,l:n)=a(i:m,l:n)+outerprod(a(i:m,i),tempn(l:n)) in Fortran
                 # outerprod in Fortran becomes np.outer in Python
-                a[i:m, l:n] = a[i:m, l:n] + np.outer(a[i:m, i], tempn[l:n])
+                a[i:m+1, l:n+1] = a[i:m+1, l:n+1] + np.outer(a[i:m+1, i], tempn[l:n+1])
                 
                 # Equivalent to a(i:m,i)=scale*a(i:m,i) in Fortran
-                a[i:m, i] = scale * a[i:m, i]
+                a[i:m+1, i] = scale * a[i:m+1, i]
         
         # Equivalent to w(i)=scale*g in Fortran
         w[i] = scale * g
@@ -339,15 +342,15 @@ def svdcmp_sp(a, w, v):
         # Equivalent to IF ((i <= m) .AND. (i /= n)) THEN in Fortran
         if i < m and i != n-1:  # Note: n-1 because Python is 0-based
             # Equivalent to scale=SUM(ABS(a(i,l:n))) in Fortran
-            scale = np.sum(np.abs(a[i, l:n]))
+            scale = np.sum(np.abs(a[i, l:n+1]))
             
             # Equivalent to IF (scale /= 0.0) THEN in Fortran
             if scale != 0.0:
                 # Equivalent to a(i,l:n)=a(i,l:n)/scale in Fortran
-                a[i, l:n] = a[i, l:n] / scale
+                a[i, l:n+1] = a[i, l:n+1] / scale
                 
                 # Equivalent to s=DOT_PRODUCT(a(i,l:n),a(i,l:n)) in Fortran
-                s = np.dot(a[i, l:n], a[i, l:n])
+                s = np.dot(a[i, l:n+1], a[i, l:n+1])
                 
                 # Equivalent to f=a(i,l) in Fortran
                 f = a[i, l]
@@ -362,16 +365,16 @@ def svdcmp_sp(a, w, v):
                 a[i, l] = f - g
                 
                 # Equivalent to rv1(l:n)=a(i,l:n)/h in Fortran
-                rv1[l:n] = a[i, l:n] / h
+                rv1[l:n+1] = a[i, l:n+1] / h
                 
                 # Equivalent to tempm(l:m)=MATMUL(a(l:m,l:n),a(i,l:n)) in Fortran
-                tempm[l:m] = np.dot(a[l:m, l:n], a[i, l:n])
+                tempm[l:m+1] = np.dot(a[l:m+1, l:n+1], a[i, l:n+1])
                 
                 # Equivalent to a(l:m,l:n)=a(l:m,l:n)+outerprod(tempm(l:m),rv1(l:n)) in Fortran
-                a[l:m, l:n] = a[l:m, l:n] + np.outer(tempm[l:m], rv1[l:n])
+                a[l:m+1, l:n+1] = a[l:m+1, l:n+1] + np.outer(tempm[l:m+1], rv1[l:n+1])
                 
                 # Equivalent to a(i,l:n)=scale*a(i,l:n) in Fortran
-                a[i, l:n] = scale * a[i, l:n]
+                a[i, l:n+1] = scale * a[i, l:n+1]
     
     # Equivalent to anorm=MAXVAL(ABS(w)+ABS(rv1)) in Fortran
     # MAXVAL in Fortran becomes np.max in Python
@@ -381,22 +384,26 @@ def svdcmp_sp(a, w, v):
     # Fortran's DO i=n,1,-1 means loop from n down to 1 with step -1
     # In Python, this becomes range(n-1, -1, -1) which gives [n-1, n-2, ..., 0]
     for i in range(n-1, -1, -1):
+        print(f"FOR #2: SVD: a_{i} = {a}")
+        print(f"FOR #2: SVD: w_{i} = {w}")
+        print(f"FOR #2: SVD: v_{i} = {v}")
+        
         if i < n-1:  # Note: n-1 because Python is 0-based
             if g != 0.0:
                 # Equivalent to v(l:n,i)=(a(i,l:n)/a(i,l))/g in Fortran
-                v[l:n, i] = (a[i, l:n] / a[i, l]) / g
+                v[l:n+1, i] = (a[i, l:n+1] / a[i, l]) / g
                 
                 # Equivalent to tempn(l:n)=MATMUL(a(i,l:n),v(l:n,l:n)) in Fortran
-                tempn[l:n] = np.dot(a[i, l:n], v[l:n, l:n])
+                tempn[l:n+1] = np.dot(a[i, l:n+1], v[l:n+1, l:n+1])
                 
                 # Equivalent to v(l:n,l:n)=v(l:n,l:n)+outerprod(v(l:n,i),tempn(l:n)) in Fortran
-                v[l:n, l:n] = v[l:n, l:n] + np.outer(v[l:n, i], tempn[l:n])
+                v[l:n+1, l:n+1] = v[l:n+1, l:n+1] + np.outer(v[l:n+1, i], tempn[l:n+1])
             
             # Equivalent to v(i,l:n)=0.0 in Fortran
-            v[i, l:n] = 0.0
+            v[i, l:n+1] = 0.0
             
             # Equivalent to v(l:n,i)=0.0 in Fortran
-            v[l:n, i] = 0.0
+            v[l:n+1, i] = 0.0
         
         # Equivalent to v(i,i)=1.0 in Fortran
         v[i, i] = 1.0
@@ -410,11 +417,14 @@ def svdcmp_sp(a, w, v):
     # Equivalent to DO i=MIN(m,n),1,-1 in Fortran
     # MIN in Fortran becomes min in Python
     for i in range(min(m, n)-1, -1, -1):
+        print(f"FOR #3: SVD: a_{i} = {a}")
+        print(f"FOR #3: SVD: w_{i} = {w}")
+        print(f"FOR #3: SVD: v_{i} = {v}")
         l = i + 1
         g = w[i]
         
         # Equivalent to a(i,l:n)=0.0 in Fortran
-        a[i, l:n] = 0.0
+        a[i, l:n+1] = 0.0
         
         # Equivalent to IF (g /= 0.0) THEN in Fortran
         if g != 0.0:
@@ -424,24 +434,28 @@ def svdcmp_sp(a, w, v):
             g = 1.0 / g
             
             # Equivalent to tempn(l:n)=(MATMUL(a(l:m,i),a(l:m,l:n))/a(i,i))*g in Fortran
-            tempn[l:n] = np.dot(a[l:m, i], a[l:m, l:n]) / a[i, i] * g
+            tempn[l:n+1] = (np.dot(a[l:m+1, i], a[l:m+1, l:n+1]) / a[i, i]) * g
             
             # Equivalent to a(i:m,l:n)=a(i:m,l:n)+outerprod(a(i:m,i),tempn(l:n)) in Fortran
-            a[i:m, l:n] = a[i:m, l:n] + np.outer(a[i:m, i], tempn[l:n])
+            a[i:m+1, l:n+1] = a[i:m+1, l:n] + np.outer(a[i:m+1, i], tempn[l:n+1])
             
             # Equivalent to a(i:m,i)=a(i:m,i)*g in Fortran
-            a[i:m, i] = a[i:m, i] * g
+            a[i:m+1, i] = a[i:m+1, i] * g
         else:
             # Equivalent to a(i:m,i)=0.0 in Fortran
-            a[i:m, i] = 0.0
+            a[i:m+1, i] = 0.0
         
         # Equivalent to a(i,i)=a(i,i)+1.0_sp in Fortran
         a[i, i] = a[i, i] + 1.0
     
     # Equivalent to DO k=n,1,-1 in Fortran
     for k in range(n-1, -1, -1):
+        print(f"FOR #4: SVD: a_{k} = {a}")
+        print(f"FOR #4: SVD: w_{k} = {w}")
+        print(f"FOR #4: SVD: v_{k} = {v}")
         # Equivalent to DO its=1,30 in Fortran
         for its in range(30):
+            print(f"k={k}, its={its}")
             # Equivalent to DO l=k,1,-1 in Fortran
             for l in range(k, -1, -1):
                 # Equivalent to nm=l-1 in Fortran
@@ -449,11 +463,15 @@ def svdcmp_sp(a, w, v):
                 
                 # Equivalent to IF ((ABS(rv1(l))+anorm) == anorm) EXIT in Fortran
                 # EXIT in Fortran becomes break in Python
-                if (np.abs(rv1[l]) + anorm) == anorm:
+                print(f"np.abs(rv1[l]) + anorm={np.abs(rv1[l]) + anorm}")
+                print(f"abs((np.abs(rv1[l]) + anorm) - anorm)={abs((np.abs(rv1[l]) + anorm) - anorm)}")
+                if abs((np.abs(rv1[l]) + anorm) - anorm) < 1e-14: # == anorm:
                     break
-                
+                print(f"nm={nm}, l={l}") 
                 # Equivalent to IF ((ABS(w(nm))+anorm) == anorm) THEN in Fortran
-                if nm >= 0 and (np.abs(w[nm]) + anorm) == anorm:
+                print(f"abs((np.abs(w[nm]) + anorm) - anorm)={abs((np.abs(w[nm]) + anorm) - anorm)}")
+                if nm >= 0 and abs((np.abs(w[nm]) + anorm) - anorm) < 1e-14: # == anorm:
+                    
                     c = 0.0
                     s = 1.0
                     
@@ -466,7 +484,7 @@ def svdcmp_sp(a, w, v):
                         rv1[i] = c * rv1[i]
                         
                         # Equivalent to IF ((ABS(f)+anorm) == anorm) EXIT in Fortran
-                        if (np.abs(f) + anorm) == anorm:
+                        if abs((np.abs(f) + anorm) - anorm) < 1e-14: # == anorm:
                             break
                         
                         # Equivalent to g=w(i) in Fortran
@@ -495,147 +513,148 @@ def svdcmp_sp(a, w, v):
                     # Equivalent to EXIT in Fortran
                     break
                 
-                # Equivalent to z=w(k) in Fortran
-                z = w[k]
+            # Equivalent to z=w(k) in Fortran
+            z = w[k]
+            
+            # Equivalent to IF (l == k) THEN in Fortran
+            if l == k:
+                print(f"l == k, z={z}")
+                # Equivalent to IF (z < 0.0) THEN in Fortran
+                if z < 0.0:
+                    # Equivalent to w(k)=-z in Fortran
+                    w[k] = -z
+                    
+                    # Equivalent to v(1:n,k)=-v(1:n,k) in Fortran
+                    v[:, k] = -v[:, k]
                 
-                # Equivalent to IF (l == k) THEN in Fortran
-                if l == k:
-                    # Equivalent to IF (z < 0.0) THEN in Fortran
-                    if z < 0.0:
-                        # Equivalent to w(k)=-z in Fortran
-                        w[k] = -z
-                        
-                        # Equivalent to v(1:n,k)=-v(1:n,k) in Fortran
-                        v[:, k] = -v[:, k]
-                    
-                    # Equivalent to EXIT in Fortran
-                    break
+                # Equivalent to EXIT in Fortran
+                break
+            
+            # Equivalent to IF (its == 30) CALL nrerror('svdcmp_sp: no convergence in svdcmp') in Fortran
+            # nrerror in Fortran becomes raise ValueError in Python
+            if its == 29:  # 0-based indexing in Python
+                raise ValueError('svdcmp_sp: no convergence in svdcmp')
+            
+            # Equivalent to x=w(l) in Fortran
+            x = w[l]
+            
+            # Equivalent to nm=k-1 in Fortran
+            nm = k - 1
+            
+            # Equivalent to y=w(nm) in Fortran
+            y = w[nm]
+            
+            # Equivalent to g=rv1(nm) in Fortran
+            g = rv1[nm]
+            
+            # Equivalent to h=rv1(k) in Fortran
+            h = rv1[k]
+            
+            # Equivalent to f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_sp*h*y) in Fortran
+            f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y)
+            
+            # Equivalent to g=pythag(f,1.0_sp) in Fortran
+            g = pythag(f, 1.0)
+            
+            # Equivalent to f=((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x in Fortran
+            # f = ((x-z)*(x+z)+h*((y/(f+np.sign(g,f)))-h))/x
+            f = ((x-z)*(x+z)+h*((y/(f+np.sign(f)*np.abs(g)))-h))/x 
+            # Equivalent to c=1.0 in Fortran
+            c = 1.0
+            
+            # Equivalent to s=1.0 in Fortran
+            s = 1.0
+            print(f"g={g}\nf={f}") 
+            # Equivalent to DO j=l,nm in Fortran
+            for j in range(l, nm+1):
+                # Equivalent to i=j+1 in Fortran
+                i = j + 1
                 
-                # Equivalent to IF (its == 30) CALL nrerror('svdcmp_sp: no convergence in svdcmp') in Fortran
-                # nrerror in Fortran becomes raise ValueError in Python
-                if its == 29:  # 0-based indexing in Python
-                    raise ValueError('svdcmp_sp: no convergence in svdcmp')
+                # Equivalent to g=rv1(i) in Fortran
+                g = rv1[i]
                 
-                # Equivalent to x=w(l) in Fortran
-                x = w[l]
+                # Equivalent to y=w(i) in Fortran
+                y = w[i]
                 
-                # Equivalent to nm=k-1 in Fortran
-                nm = k - 1
+                # Equivalent to h=s*g in Fortran
+                h = s * g
                 
-                # Equivalent to y=w(nm) in Fortran
-                y = w[nm]
+                # Equivalent to g=c*g in Fortran
+                g = c * g
                 
-                # Equivalent to g=rv1(nm) in Fortran
-                g = rv1[nm]
+                # Equivalent to z=pythag(f,h) in Fortran
+                z = pythag(f, h)
                 
-                # Equivalent to h=rv1(k) in Fortran
-                h = rv1[k]
+                # Equivalent to rv1(j)=z in Fortran
+                rv1[j] = z
                 
-                # Equivalent to f=((y-z)*(y+z)+(g-h)*(g+h))/(2.0_sp*h*y) in Fortran
-                f = ((y-z)*(y+z)+(g-h)*(g+h))/(2.0*h*y)
+                # Equivalent to c=f/z in Fortran
+                c = f / z
                 
-                # Equivalent to g=pythag(f,1.0_sp) in Fortran
-                g = pythag(f, 1.0)
+                # Equivalent to s=h/z in Fortran
+                s = h / z
                 
-                # Equivalent to f=((x-z)*(x+z)+h*((y/(f+SIGN(g,f)))-h))/x in Fortran
-                f = ((x-z)*(x+z)+h*((y/(f+np.sign(g,f)))-h))/x
+                # Equivalent to f= (x*c)+(g*s) in Fortran
+                f = (x*c) + (g*s)
                 
-                # Equivalent to c=1.0 in Fortran
-                c = 1.0
+                # Equivalent to g=-(x*s)+(g*c) in Fortran
+                g = -(x*s) + (g*c)
                 
-                # Equivalent to s=1.0 in Fortran
-                s = 1.0
+                # Equivalent to h=y*s in Fortran
+                h = y * s
                 
-                # Equivalent to DO j=l,nm in Fortran
-                for j in range(l, nm+1):
-                    # Equivalent to i=j+1 in Fortran
-                    i = j + 1
-                    
-                    # Equivalent to g=rv1(i) in Fortran
-                    g = rv1[i]
-                    
-                    # Equivalent to y=w(i) in Fortran
-                    y = w[i]
-                    
-                    # Equivalent to h=s*g in Fortran
-                    h = s * g
-                    
-                    # Equivalent to g=c*g in Fortran
-                    g = c * g
-                    
-                    # Equivalent to z=pythag(f,h) in Fortran
-                    z = pythag(f, h)
-                    
-                    # Equivalent to rv1(j)=z in Fortran
-                    rv1[j] = z
-                    
-                    # Equivalent to c=f/z in Fortran
-                    c = f / z
-                    
-                    # Equivalent to s=h/z in Fortran
-                    s = h / z
-                    
-                    # Equivalent to f= (x*c)+(g*s) in Fortran
-                    f = (x*c) + (g*s)
-                    
-                    # Equivalent to g=-(x*s)+(g*c) in Fortran
-                    g = -(x*s) + (g*c)
-                    
-                    # Equivalent to h=y*s in Fortran
-                    h = y * s
-                    
-                    # Equivalent to y=y*c in Fortran
-                    y = y * c
-                    
-                    # Equivalent to tempn(1:n)=v(1:n,j) in Fortran
-                    tempn = v[:, j].copy()
-                    
-                    # Equivalent to v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s in Fortran
-                    v[:, j] = v[:, j] * c + v[:, i] * s
-                    
-                    # Equivalent to v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c in Fortran
-                    v[:, i] = -tempn * s + v[:, i] * c
-                    
-                    # Equivalent to z=pythag(f,h) in Fortran
-                    z = pythag(f, h)
-                    
-                    # Equivalent to w(j)=z in Fortran
-                    w[j] = z
-                    
-                    # Equivalent to IF (z /= 0.0) THEN in Fortran
-                    if z != 0.0:
-                        # Equivalent to z=1.0_sp/z in Fortran
-                        z = 1.0 / z
-                        
-                        # Equivalent to c=f*z in Fortran
-                        c = f * z
-                        
-                        # Equivalent to s=h*z in Fortran
-                        s = h * z
-                    
-                    # Equivalent to f= (c*g)+(s*y) in Fortran
-                    f = (c*g) + (s*y)
-                    
-                    # Equivalent to x=-(s*g)+(c*y) in Fortran
-                    x = -(s*g) + (c*y)
-                    
-                    # Equivalent to tempm(1:m)=a(1:m,j) in Fortran
-                    tempm = a[:, j].copy()
-                    
-                    # Equivalent to a(1:m,j)=a(1:m,j)*c+a(1:m,i)*s in Fortran
-                    a[:, j] = a[:, j] * c + a[:, i] * s
-                    
-                    # Equivalent to a(1:m,i)=-tempm(1:m)*s+a(1:m,i)*c in Fortran
-                    a[:, i] = -tempm * s + a[:, i] * c
+                # Equivalent to y=y*c in Fortran
+                y = y * c
                 
-                # Equivalent to rv1(l)=0.0 in Fortran
-                rv1[l] = 0.0
+                # Equivalent to tempn(1:n)=v(1:n,j) in Fortran
+                tempn = v[:, j].copy()
                 
-                # Equivalent to rv1(k)=f in Fortran
-                rv1[k] = f
+                # Equivalent to v(1:n,j)=v(1:n,j)*c+v(1:n,i)*s in Fortran
+                v[:, j] = v[:, j] * c + v[:, i] * s
                 
-                # Equivalent to w(k)=x in Fortran
-                w[k] = x
+                # Equivalent to v(1:n,i)=-tempn(1:n)*s+v(1:n,i)*c in Fortran
+                v[:, i] = -tempn * s + v[:, i] * c
+                
+                # Equivalent to z=pythag(f,h) in Fortran
+                z = pythag(f, h)
+                
+                # Equivalent to w(j)=z in Fortran
+                w[j] = z
+                
+                # Equivalent to IF (z /= 0.0) THEN in Fortran
+                if z != 0.0:
+                    # Equivalent to z=1.0_sp/z in Fortran
+                    z = 1.0 / z
+                    
+                    # Equivalent to c=f*z in Fortran
+                    c = f * z
+                    
+                    # Equivalent to s=h*z in Fortran
+                    s = h * z
+                
+                # Equivalent to f= (c*g)+(s*y) in Fortran
+                f = (c*g) + (s*y)
+                
+                # Equivalent to x=-(s*g)+(c*y) in Fortran
+                x = -(s*g) + (c*y)
+                
+                # Equivalent to tempm(1:m)=a(1:m,j) in Fortran
+                tempm = a[:, j].copy()
+                
+                # Equivalent to a(1:m,j)=a(1:m,j)*c+a(1:m,i)*s in Fortran
+                a[:, j] = a[:, j] * c + a[:, i] * s
+                
+                # Equivalent to a(1:m,i)=-tempm(1:m)*s+a(1:m,i)*c in Fortran
+                a[:, i] = -tempm * s + a[:, i] * c
+            
+            # Equivalent to rv1(l)=0.0 in Fortran
+            rv1[l] = 0.0
+            
+            # Equivalent to rv1(k)=f in Fortran
+            rv1[k] = f
+            
+            # Equivalent to w(k)=x in Fortran
+            w[k] = x
     
     return a, w, v
 
@@ -643,22 +662,6 @@ def svdcmp_sp(a, w, v):
 def svbksb_sp(u, w, v, b):
     """
     Solve A*x = b using the SVD decomposition of A.
-    
-    Parameters:
-    -----------
-    u : ndarray
-        Left singular vectors (U matrix from SVD)
-    w : ndarray
-        Singular values
-    v : ndarray
-        Right singular vectors (V matrix from SVD)
-    b : ndarray
-        Right-hand side vector
-        
-    Returns:
-    --------
-    x : ndarray
-        Solution vector
     """
     # Get dimensions
     mdum = u.shape[0]
@@ -668,28 +671,18 @@ def svbksb_sp(u, w, v, b):
     assert mdum == len(b), 'svbksb_sp: mdum'
     assert ndum == v.shape[0] and ndum == v.shape[1] and ndum == len(w) and ndum == len(b), 'svbksb_sp: ndum'
     
-    # Create temporary array
-    tmp = np.zeros(ndum)
+    # Compute U^T * b
+    tmp_raw = np.dot(b, u)
     
-    # Compute U^T * b / w (with handling for zero singular values)
-    # This is equivalent to the WHERE statement in Fortran
+    # Apply division by w where w is non-zero
+    tmp = np.zeros(ndum)
     for j in range(ndum):
         if w[j] != 0.0:
-            s = 0.0
-            for i in range(mdum):
-                s += b[i] * u[i, j]
-            tmp[j] = s / w[j]
-        else:
-            tmp[j] = 0.0
+            tmp[j] = tmp_raw[j] / w[j]
     
-    # Multiply by V^T to get the solution
-    x = np.zeros(ndum)
-    for j in range(ndum):
-        s = 0.0
-        for jj in range(ndum):
-            s += v[jj, j] * tmp[jj]  # Fixed: v[j, jj] -> v[jj, j] to match Fortran's column-major order
-        x[j] = s
-    
+    # Compute V * tmp
+    x = np.dot(v, tmp)
+
     return x
 
 # integration bounds 
@@ -700,6 +693,7 @@ maxl = 4 # maximum multipole order
 
 inpfile = sys.argv[1] if len(sys.argv) > 1 else "gdma/temp_format.dma"
 multsites = numbersites(inpfile)
+print(f" %%%%%% BEGINNING mpfit.py %%%%%%")
 print(f"multsites={multsites}")
 
 multipoles = np.zeros((multsites, maxl+1, maxl+1, 2))
@@ -757,7 +751,7 @@ print(f"rvdw={rvdw}")
 # fit charges for each multipole site
 # then add them to the total charge array
 for i in range(multsites):
-    
+    print(f"multisite #{i}") 
     # determine charge positions are close enough to fit given multsite
     count = 0
     for j in range(chargesites):
@@ -771,7 +765,7 @@ for i in range(multsites):
         if rqm < rvdw[i]:
             quse[j] = 1
             count += 1
-            print(f"setting quse={quse[j]} for rqm_{i}{j} = {rqm}")
+            #print(f"setting quse={quse[j]} for rqm_{i}{j} = {rqm}")
         else:
             quse[j] = 0
     qsites = count
@@ -805,15 +799,16 @@ for i in range(multsites):
     
     A, w, v = svdcmp_sp(A, w, v)
     print(f"A.shape={A.shape}\nA={A}")
-    print(f"w.shape={w.shape}\nw={w}")
-    print(f"v.shape={v.shape}\nv={v}")
 
     # Set small singular values to zero (equivalent to lines 119-123 in mpfit.f90)
     for j in range(len(w)):
         if w[j] < small:
             w[j] = 0.0
+    print(f"w.shape={w.shape}\nw={w}")
+    print(f"v.shape={v.shape}\nv={v}")
     
     # Call svbksb_sp to solve the system
+    
     q = svbksb_sp(A, w, v, b)
     print(f"q.shape={q.shape}\nq={q}")
     
