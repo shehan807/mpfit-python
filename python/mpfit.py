@@ -146,20 +146,16 @@ def Amat(nsite, xyzmult, xyzcharge, r1, r2, maxl, A):
             _sum = 0.0
             for l in range(0, maxl+1):
                 if l == 0:
-                    _sum = (1.0 / (2.0*l + 1.0)) * W[0] * RSH_scipy(0, 0, 0, xj, yj, zj) * RSH_scipy(0, 0, 0, xk, yk, zk)
+                    _sum = (1.0 / (2.0*l + 1.0)) * W[0] * RSH(0, 0, 0, xj, yj, zj) * RSH(0, 0, 0, xk, yk, zk)
                 else:
                     for m in range(l+1):
                         if m == 0:
-                            print(f"RSH(l={l}, 0, 0, xj={xj}, yj={yj}, zj={zj})={RSH(l, 0, 0, xj, yj, zj)}")
-                            print(f"RSH_scipy(l={l}, 0, 0, xj={xj}, yj={yj}, zj={zj})={RSH_scipy(l, 0, 0, xj, yj, zj)}")
-                            _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (RSH_scipy(l, 0, 0, xj, yj, zj) * RSH_scipy(l, 0, 0, xk, yk, zk))
+                            _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (RSH(l, 0, 0, xj, yj, zj) * RSH(l, 0, 0, xk, yk, zk))
                         else:
                             # For m>0, include both real and imaginary parts
-                            print(f"RSH(l={l}, m={m}, 0, xj={xj}, yj={yj}, zj={zj})={RSH(l, m, 0, xj, yj, zj)}")
-                            print(f"RSH_scipy(l={l}, m={m}, 0, xj={xj}, yj={yj}, zj={zj})={RSH_scipy(l, m, 0, xj, yj, zj)}")
                             _sum += (1.0 / (2.0*l + 1.0)) * W[l] * (
-                                RSH_scipy(l, m, 0, xj, yj, zj) * RSH_scipy(l, m, 0, xk, yk, zk) +
-                                RSH_scipy(l, m, 1, xj, yj, zj) * RSH_scipy(l, m, 1, xk, yk, zk)
+                                RSH(l, m, 0, xj, yj, zj) * RSH(l, m, 0, xk, yk, zk) +
+                                RSH(l, m, 1, xj, yj, zj) * RSH(l, m, 1, xk, yk, zk)
                             )
             A[j, k] = _sum
     return A
@@ -183,22 +179,22 @@ def bvec(nsite, xyzmult, xyzcharge, r1, r2, maxl, multipoles, b):
             if l == 0:
                 # Special case for l = 0
                 _sum = (1.0 / (2.0 * l + 1.0)) * W[0] * \
-                        multipoles[nsite, 0, 0, 0] * RSH_scipy(0, 0, 0, xk, yk, zk)
+                        multipoles[nsite, 0, 0, 0] * RSH(0, 0, 0, xk, yk, zk)
             else:
                 for m in range(l+1):
                     if m == 0: 
                         # m = 0 case
                         _sum += (1.0 / (2.0 * l + 1.0)) * W[l] * \
-                                multipoles[nsite, l, 0, 0] * RSH_scipy(l, 0, 0, xk, yk, zk)
+                                multipoles[nsite, l, 0, 0] * RSH(l, 0, 0, xk, yk, zk)
                     else:
                         # m > 0 case
                         _sum += (1.0 / (2.0 * l + 1.0)) * W[l] * \
-                                   (multipoles[nsite, l, m, 0] * RSH_scipy(l, m, 0, xk, yk, zk) +
-                                    multipoles[nsite, l, m, 1] * RSH_scipy(l, m, 1, xk, yk, zk))
+                                   (multipoles[nsite, l, m, 0] * RSH(l, m, 0, xk, yk, zk) +
+                                    multipoles[nsite, l, m, 1] * RSH(l, m, 1, xk, yk, zk))
         b[k] = _sum
     return b
 
-def RSH_scipy(l, m, cs, x, y, z):
+def RSH(l, m, cs, x, y, z):
     """Evaluate regular solid harmonics using scipy."""
     r = np.sqrt(x*x + y*y + z*z)
     if r < 1e-16:
@@ -215,53 +211,6 @@ def RSH_scipy(l, m, cs, x, y, z):
         return norm * r**l * Y.real
     else:
         return np.sqrt(2.) * (-1.)**m * norm * r**l * (Y.real if cs == 0 else Y.imag)
-
-def RSH(l,m,cs,x,y,z):
-    """Evaluate regular spherical harmonics.
-    
-    Evaluate spherical harmonics @ x,y,z, where l,m,cs determine 
-    the rank, cs=0 means cosine, cs=1 means sine.
-    """
-    # initialize array for RSH values
-    rsharray = np.zeros((5, 5, 2)) # ALLOCATE(rsharray(0:4,0:4,0:1))
-    rsq = x**2 + y**2 + z**2 
-
-    # l=0 (monopole)
-    rsharray[0, 0, 0] = 1.0
-    
-    # l=1 (dipole)
-    rsharray[1, 0, 0] = z
-    rsharray[1, 1, 0] = x
-    rsharray[1, 1, 1] = y
-    
-    # l=2 (quadrupole)
-    rsharray[2, 0, 0] = 0.5 * (3.0 * z**2 - rsq)
-    rsharray[2, 1, 0] = np.sqrt(3.0) * x * z
-    rsharray[2, 1, 1] = np.sqrt(3.0) * y * z
-    rsharray[2, 2, 0] = 0.5 * np.sqrt(3.0) * (x**2 - y**2)
-    rsharray[2, 2, 1] = np.sqrt(3.0) * x * y
-    
-    # l=3 (octupole)
-    rsharray[3, 0, 0] = 0.5 * (5.0 * z**3 - 3.0 * z * rsq)
-    rsharray[3, 1, 0] = 0.25 * np.sqrt(6.0) * (4.0 * x * z**2 - x**3 - x * y**2)
-    rsharray[3, 1, 1] = 0.25 * np.sqrt(6.0) * (4.0 * y * z**2 - y * x**2 - y**3)
-    rsharray[3, 2, 0] = 0.5 * np.sqrt(15.0) * z * (x**2 - y**2)
-    rsharray[3, 2, 1] = np.sqrt(15.0) * x * y * z
-    rsharray[3, 3, 0] = 0.25 * np.sqrt(10.0) * (x**3 - 3.0 * x * y**2)
-    rsharray[3, 3, 1] = 0.25 * np.sqrt(10.0) * (3.0 * x**2 * y - y**3)
-    
-    # l=4 (hexadecapole)
-    rsharray[4, 0, 0] = 0.125 * (8.0*z**4 - 24.0*(x**2+y**2)*z**2 + 3.0*(x**4+2.0*x**2*y**2+y**4))
-    rsharray[4, 1, 0] = 0.25 * np.sqrt(10.0) * (4.0*x*z**3 - 3.0*x*z*(x**2+y**2))
-    rsharray[4, 1, 1] = 0.25 * np.sqrt(10.0) * (4.0*y*z**3 - 3.0*y*z*(x**2+y**2))
-    rsharray[4, 2, 0] = 0.25 * np.sqrt(5.0) * (x**2-y**2)*(6.0*z**2-x**2-y**2)
-    rsharray[4, 2, 1] = 0.25 * np.sqrt(5.0) * x*y*(6.0*z**2-x**2-y**2)
-    rsharray[4, 3, 0] = 0.25 * np.sqrt(70.0) * z*(x**3-3.0*x*y**2)
-    rsharray[4, 3, 1] = 0.25 * np.sqrt(70.0) * z*(3.0*x**2*y-y**3)
-    rsharray[4, 4, 0] = 0.125 * np.sqrt(35.0) * (x**4-6.0*x**2*y**2+y**4)
-    rsharray[4, 4, 1] = 0.125 * np.sqrt(35.0) * x*y*(x**2-y**2)
-    
-    return rsharray[l, m, cs]
 
 def pythag(a, b):
     """
@@ -720,6 +669,7 @@ chargesites = multsites + count
 
 xyzcharge = np.zeros((chargesites, 3))
 qstore = np.zeros(chargesites)
+qstore2 = np.zeros(chargesites)
 quse = np.zeros(chargesites) # excluding redundant qstore(:)=0.0
 
 lmax, mm, ms, atomtype = getmultmoments(inpfile, multsites, lmax, multipoles, xyzmult, atomtype)
@@ -770,6 +720,7 @@ for i in range(multsites):
     v = np.zeros((qsites, qsites))
     w = np.zeros(qsites)
     q = np.zeros(qsites)
+    q2 = np.zeros(qsites)
     b = np.zeros(qsites)
     xyzq = np.zeros((qsites, 3))
     btst = np.zeros(qsites)
@@ -789,6 +740,27 @@ for i in range(multsites):
     Astore = A.copy()
     
     A, w, v = svdcmp_sp(A, w, v)
+    
+    U, s, VT = np.linalg.svd(Astore, full_matrices=True)
+    s[s < small] = 0.0
+    # build pseudo-inverse for solution
+    # x = V^T.T @ inv(S) @ U.T @ b
+    inv_s = np.zeros_like(s)
+    mask_s = s != 0
+    inv_s[mask_s] = 1.0 / s[mask_s]
+    # shape handling for matrix multiply:
+    q2 = (VT.T * inv_s) @ (U.T @ b)
+
+    # Alternatively, one-liner with lstsq:
+    # q, residuals, rank, svals = np.linalg.lstsq(A, b, rcond=small)
+
+    # accumulate fitted charges
+    print(f"A={A}")
+    print(f"U={U}")
+    print(f"w={w}")
+    print(f"s={s}")
+    print(f"v={v}")
+    print(f"VT={VT}")
 
     # Set small singular values to zero (equivalent to lines 119-123 in mpfit.f90)
     for j in range(len(w)):
@@ -806,11 +778,13 @@ for i in range(multsites):
     count = 0
     for j in range(chargesites):
         if quse[j] == 1:
+            qstore2[j] = qstore2[j] + q2[count]
             qstore[j] = qstore[j] + q[count]
             count += 1
 
 # Print the final charges for each multipole site
 for j in range(multsites):
-    print(f"{atomtype[j]}: {qstore[j]:8.5f}")
+    print(f"{atomtype[j]}(np.linalg.svd): {qstore2[j]:8.5f}")
+    #print(f"{atomtype[j]}: {qstore[j]:8.5f}")
     
     
