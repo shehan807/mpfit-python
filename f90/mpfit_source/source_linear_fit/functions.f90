@@ -427,7 +427,7 @@ SUBROUTINE svdcmp_sp(a,w,v)
 			END DO
 			z=w(k)
 			IF (l == k) THEN
-                                WRITE(*,*) "l == k; z=",z
+                                WRITE(*,*) "l == k; z=", z
 				IF (z < 0.0) THEN
 					w(k)=-z
 					v(1:n,k)=-v(1:n,k)
