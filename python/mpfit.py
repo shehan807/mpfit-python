@@ -242,7 +242,6 @@ chargesites = multsites + count
 
 xyzcharge = np.zeros((chargesites, 3))
 qstore = np.zeros(chargesites)
-qstore2 = np.zeros(chargesites)
 quse = np.zeros(chargesites) # excluding redundant qstore(:)=0.0
 
 lmax, mm, ms, atomtype = getmultmoments(inpfile, multsites, lmax, multipoles, xyzmult, atomtype)
@@ -271,41 +270,18 @@ for i in range(multsites):
 # fit charges for each multipole site
 # then add them to the total charge array
 for i in range(multsites):
-    # determine charge positions are close enough to fit given multsite
-    count = 0
-    for j in range(chargesites):
-        # calculate distance, r, between charge, q, and multipole, m, sites
-        rqm = np.sqrt(
-            (xyzmult[i, 0] - xyzcharge[j, 0])**2 +
-            (xyzmult[i, 1] - xyzcharge[j, 1])**2 +
-            (xyzmult[i, 2] - xyzcharge[j, 2])**2
-        )
-        if rqm < rvdw[i]:
-            quse[j] = 1
-            count += 1
-            #print(f"setting quse={quse[j]} for rqm_{i}{j} = {rqm}")
-        else:
-            quse[j] = 0
-    qsites = count
-
+    rqm = np.linalg.norm(xyzmult[i] - xyzcharge, axis=1)
+    quse_mask = rqm < rvdw[i]
+    
+    qsites = np.count_nonzero(quse_mask)
+    
     A = np.zeros((qsites, qsites))
     v = np.zeros((qsites, qsites))
     w = np.zeros(qsites)
     q = np.zeros(qsites)
-    q2 = np.zeros(qsites)
     b = np.zeros(qsites)
-    xyzq = np.zeros((qsites, 3))
-    btst = np.zeros(qsites)
 
-    # generate xyzq array from xyzcharge array pickout out relevant charges in order from lowest label site 
-    count = 0
-    for j in range(chargesites):
-        if quse[j] == 1:
-            xyzq[count, 0] = xyzcharge[j, 0]
-            xyzq[count, 1] = xyzcharge[j, 1]
-            xyzq[count, 2] = xyzcharge[j, 2]
-            count += 1
-
+    xyzq = xyzcharge[quse_mask] 
     A = Amat(i, xyzmult, xyzq, r1, r2, lmax[i], A)
     b = bvec(i, xyzmult, xyzq, r1, r2, lmax[i], multipoles, b)
 
@@ -320,11 +296,7 @@ for i in range(multsites):
     q = (Vh.T * inv_S) @ (U.T @ b)
     
     # Add the fitted charges to the total array qstore
-    count = 0
-    for j in range(chargesites):
-        if quse[j] == 1:
-            qstore[j] = qstore[j] + q[count]
-            count += 1
+    qstore[quse_mask] += q
 
 # Print the final charges for each multipole site
 for j in range(multsites):
