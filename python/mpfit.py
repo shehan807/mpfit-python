@@ -237,8 +237,26 @@ def bvec(nsite, xyzmult, xyzcharge, r1, r2, maxl, multipoles, b):
 def RSH(l, m, cs, x, y, z):
     """Evaluate regular solid harmonics using scipy."""
     r = np.sqrt(x * x + y * y + z * z)
-    if r < 1e-16:
+    if r < 1e-10:
         return 1.0 if (l == 0 and m == 0 and cs == 0) else 0.0
+    if l == 4:
+        # Initialize array for RSH values
+        rsharray = np.zeros((5, 5, 2))
+        rsq = x**2 + y**2 + z**2    
+        
+        # l=4 (hexadecapole)
+        rsharray[4, 0, 0] = 0.125 * (8.0*z**4 - 24.0*(x**2+y**2)*z**2 + 3.0*(x**4+2.0*x**2*y**2+y**4))
+        rsharray[4, 1, 0] = 0.25 * np.sqrt(10.0) * (4.0*x*z**3 - 3.0*x*z*(x**2+y**2))
+        rsharray[4, 1, 1] = 0.25 * np.sqrt(10.0) * (4.0*y*z**3 - 3.0*y*z*(x**2+y**2))
+        rsharray[4, 2, 0] = 0.25 * np.sqrt(5.0) * (x**2-y**2)*(6.0*z**2-x**2-y**2)
+        rsharray[4, 2, 1] = 0.25 * np.sqrt(5.0) * x*y*(6.0*z**2-x**2-y**2)
+        rsharray[4, 3, 0] = 0.25 * np.sqrt(70.0) * z*(x**3-3.0*x*y**2)
+        rsharray[4, 3, 1] = 0.25 * np.sqrt(70.0) * z*(3.0*x**2*y-y**3)
+        rsharray[4, 4, 0] = 0.125 * np.sqrt(35.0) * (x**4-6.0*x**2*y**2+y**4)
+        rsharray[4, 4, 1] = 0.125 * np.sqrt(35.0) * x*y*(x**2-y**2)
+
+        return rsharray[l, m, cs]
+    
     theta = np.arccos(z / r)
     phi = np.arctan2(y, x)
 
