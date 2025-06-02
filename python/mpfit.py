@@ -1,7 +1,144 @@
 import sys
 import numpy as np
 from scipy.special import sph_harm_y
+from rich.console import Console
+from rich.table import Table
+from rich.panel import Panel
+from rich.text import Text
+from rich import box
 
+def print_matrix_rich(matrix, title="Matrix", precision=6, max_rows=20, max_cols=10):
+    """
+    Print a matrix using rich library with beautiful formatting
+    
+    Parameters:
+    -----------
+    matrix : np.ndarray
+        The matrix to print
+    title : str
+        Title for the matrix
+    precision : int
+        Number of decimal places to show
+    max_rows : int
+        Maximum number of rows to display
+    max_cols : int
+        Maximum number of columns to display
+    """
+    console = Console()
+    
+    # Handle 1D arrays (vectors)
+    if matrix.ndim == 1:
+        matrix = matrix.reshape(-1, 1)
+    
+    rows, cols = matrix.shape
+    
+    # Create table
+    table = Table(title=f"{title} ({rows}×{cols})", box=box.ROUNDED)
+    
+    # Add column headers
+    table.add_column("Row", style="cyan", no_wrap=True)
+    display_cols = min(cols, max_cols)
+    for j in range(display_cols):
+        table.add_column(f"Col {j}", style="magenta", justify="right")
+    
+    if cols > max_cols:
+        table.add_column("...", style="dim")
+    
+    # Add rows
+    display_rows = min(rows, max_rows)
+    for i in range(display_rows):
+        row_data = [f"[cyan]{i}[/cyan]"]
+        for j in range(display_cols):
+            value = matrix[i, j]
+            if abs(value) < 1e-10:
+                row_data.append("[dim]0.000000[/dim]")
+            else:
+                row_data.append(f"{value:.{precision}f}")
+        
+        if cols > max_cols:
+            row_data.append("[dim]...[/dim]")
+        
+        table.add_row(*row_data)
+    
+    if rows > max_rows:
+        ellipsis_row = ["[dim]...[/dim]"] * (display_cols + 1 + (1 if cols > max_cols else 0))
+        table.add_row(*ellipsis_row)
+    
+    console.print(table)
+    console.print()
+
+def print_vector_rich(vector, title="Vector", precision=6, max_elements=15):
+    """
+    Print a vector in a compact, readable format
+    """
+    console = Console()
+    
+    vector = np.asarray(vector).flatten()
+    n = len(vector)
+    
+    # Create a compact representation
+    if n <= max_elements:
+        elements = [f"{v:.{precision}f}" for v in vector]
+        vector_str = " ".join(f"[magenta]{elem}[/magenta]" for elem in elements)
+    else:
+        # Show first few and last few elements
+        show_each = max_elements // 2
+        first_elements = [f"{v:.{precision}f}" for v in vector[:show_each]]
+        last_elements = [f"{v:.{precision}f}" for v in vector[-show_each:]]
+        
+        first_str = " ".join(f"[magenta]{elem}[/magenta]" for elem in first_elements)
+        last_str = " ".join(f"[magenta]{elem}[/magenta]" for elem in last_elements)
+        vector_str = f"{first_str} [dim]...[/dim] {last_str}"
+    
+    panel = Panel(
+        vector_str,
+        title=f"[bold cyan]{title}[/bold cyan] (length: {n})",
+        border_style="blue"
+    )
+    console.print(panel)
+    console.print()
+
+def print_svd_components(U, S, Vh, precision=6):
+    """
+    Print SVD components in a organized way
+    """
+    console = Console()
+    
+    console.print("[bold green]SVD Decomposition: A = U × S × Vᵀ[/bold green]")
+    console.print()
+    
+    print_matrix_rich(U, "U (Left singular vectors)", precision)
+    print_vector_rich(S, "S (Singular values)", precision)
+    print_matrix_rich(Vh, "Vᵀ (Right singular vectors)", precision)
+
+# Example usage function for your specific matrices
+def debug_linear_system(A, b, U, S, Vh, q, site_index, precision=6):
+    """
+    Print all matrices for debugging the linear system at a specific site
+    """
+    console = Console()
+    
+    # Header for this site
+    header = Text(f"DEBUGGING SITE {site_index}", style="bold yellow on blue")
+    console.print(Panel(header, expand=False))
+    console.print()
+    
+    # Print the main system components
+    print_matrix_rich(A, f"System Matrix A", precision)
+    print_vector_rich(b, f"Right-hand side b", precision)
+    
+    # Print SVD components
+    print_svd_components(U, S, Vh, precision)
+    
+    # Print solution
+    print_vector_rich(q, f"Solution vector q", precision)
+    
+    # Print some diagnostics
+    console.print(f"[yellow]Matrix condition number:[/yellow] {np.linalg.cond(A):.2e}")
+    console.print(f"[yellow]Residual norm ||Aq - b||:[/yellow] {np.linalg.norm(A @ q - b):.2e}")
+    console.print()
+    console.print("-" * 80)
+    console.print()
 
 def _print_multipole_moments(i, mm, lmax):
     """
@@ -106,7 +243,7 @@ def getmultmoments(
     return lmax, mm, ms, atomtype
 
 
-def gencharges(ms, qs, midbond):
+def gencharges(ms, qs, midbond, pyrazine_vsites=True):
     """Generate charge positions from multipole sites and bond information"""
     nmult = ms.shape[0]  # number of multipole sites
     nmid = qs.shape[0] - nmult  # number of midpoints
@@ -116,6 +253,12 @@ def gencharges(ms, qs, midbond):
         qs[i, 0] = ms[i, 0]
         qs[i, 1] = ms[i, 1]
         qs[i, 2] = ms[i, 2]
+    
+    # pyrazine special case
+    if pyrazine_vsites:
+        qs[i+1, 0] = 0.0 
+        qs[i+1, 1] = 0.0
+        qs[i+1, 2] = 0.0
 
     if nmid > 0:
         count = 0
@@ -279,6 +422,9 @@ r2 = 12.45  # outer radius
 small = 1.0e-4  # SVD threshold
 maxl = 4  # maximum multipole order
 
+# virtual sites
+pyrazine_vsites = True
+
 inpfile = sys.argv[1] if len(sys.argv) > 1 else "gdma/temp_format.dma"
 multsites = numbersites(inpfile)
 
@@ -301,6 +447,9 @@ for i in range(multsites):
     for j in range(i + 1, multsites):
         if midbond[i, j] == 1:
             count += 1
+if pyrazine_vsites:
+    count += 1
+
 chargesites = multsites + count
 
 xyzcharge = np.zeros((chargesites, 3))
@@ -311,7 +460,7 @@ lmax, mm, ms, atomtype = getmultmoments(
     inpfile, multsites, lmax, multipoles, xyzmult, atomtype
 )
 
-qs = gencharges(xyzmult, xyzcharge, midbond)
+qs = gencharges(xyzmult, xyzcharge, midbond, pyrazine_vsites=pyrazine_vsites)
 
 # Create rvdw, which determines radius encompassing charges
 # for each multipole site. For instance, if there is only a monopole
@@ -337,6 +486,8 @@ for i in range(multsites):
 # fit charges for each multipole site
 # then add them to the total charge array
 for i in range(multsites):
+    print(f"xyzmult[i]: {xyzmult[i]}")
+    print(f"xyzcharge: {xyzcharge}")
     rqm = np.linalg.norm(xyzmult[i] - xyzcharge, axis=1)
     quse_mask = rqm < rvdw[i]
 
@@ -363,6 +514,13 @@ for i in range(multsites):
     # Add the fitted charges to the total array qstore
     qstore[quse_mask] += q
 
+    debug_linear_system(A, b, U, S, Vh, q, i, precision=6)
+    print(quse_mask)
+    print(qstore)
 # Print the final charges for each multipole site
 for j in range(multsites):
     print(f"{atomtype[j]}: {qstore[j]:8.5f}")
+if pyrazine_vsites:
+    j += 1
+    print(f"vsite: {qstore[j]:8.5f}")
+print(f"Sum charges: {sum(qstore)}.")
